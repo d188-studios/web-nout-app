@@ -1,9 +1,9 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Page } from '../types';
 
-export interface PageItemMenuProps {
+export interface PageMenuProps {
   page: Page;
   position: {
     x: number;
@@ -15,13 +15,13 @@ export interface PageItemMenuProps {
   menuRef?: React.Ref<HTMLDivElement>;
 }
 
-export function PageItemMenu({
+export function PageMenu({
   page,
   position,
   onPressDelete,
   onPressEdit,
   onPressOutside,
-}: PageItemMenuProps) {
+}: PageMenuProps) {
   useEffect(() => {
     if (onPressOutside) {
       document.addEventListener('click', onPressOutside);

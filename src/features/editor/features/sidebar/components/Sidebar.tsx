@@ -1,26 +1,35 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { Header } from './Header';
-import Pages from './Pages';
-import { PageItemMenu } from './PageItemMenu';
+import { Pages, PagesHandle } from './Pages';
+import { PageMenu } from './PageMenu';
 import { Page } from '../types';
 
 export interface SidebarProps {
   className?: string;
   visible?: boolean;
   onClose?: () => void;
+  selectedPage?: Page;
+  onSelectedPageChange?: (page: Page) => void;
 }
 
-export function Sidebar({ className, visible, onClose }: SidebarProps) {
-  const [page, setPage] = useState<Page | null>(null);
+export function Sidebar({
+  className,
+  visible,
+  onClose,
+  selectedPage,
+  onSelectedPageChange,
+}: SidebarProps) {
+  const [focusedPage, setFocusedPage] = useState<Page | null>(null);
   const [menuPosition, setMenuPosition] = useState({
     x: 0,
     y: 0,
   });
   const onPressOutsideMenu = useCallback(() => {
-    setPage(null);
+    setFocusedPage(null);
   }, []);
+  const pagesRef = useRef<PagesHandle>(null);
 
   return (
     <div
@@ -34,24 +43,35 @@ export function Sidebar({ className, visible, onClose }: SidebarProps) {
     >
       <Header onPressClose={onClose} />
       <Pages
+        ref={pagesRef}
         className="flex-1"
-        onOpenMenu={(page, position) => {
-          setPage(page);
+        openMenu={(page, position) => {
+          setFocusedPage(page);
           setMenuPosition(position);
         }}
+        selectedPage={selectedPage}
+        onSelectedPageChange={onSelectedPageChange}
       />
-      {page ? (
-        <PageItemMenu
+      {focusedPage ? (
+        <PageMenu
           onPressOutside={onPressOutsideMenu}
-          page={page}
+          page={focusedPage}
           position={menuPosition}
           onPressDelete={(page) => {
-            console.log('delete', page);
-            setPage(null);
+            if (pagesRef.current) pagesRef.current.deletePage(page);
+            setFocusedPage(null);
           }}
           onPressEdit={(page) => {
-            console.log('edit', page);
-            setPage(null);
+            if (pagesRef.current) {
+              const newTitle = prompt('Nuevo titulo', page.title);
+              if (newTitle !== null) {
+                pagesRef.current.renamePage(page, newTitle);
+                if (selectedPage && selectedPage.id === page.id)
+                  onSelectedPageChange?.(page);
+              }
+            }
+
+            setFocusedPage(null);
           }}
         />
       ) : null}

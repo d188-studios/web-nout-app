@@ -7,7 +7,7 @@ export interface NewPageButtonProps {
 export default function NewPageButton({ onPress }: NewPageButtonProps) {
   return (
     <div
-      className="flex items-center h-8 px-4 cursor-pointer select-none hover:bg-slate-200 transition-all"
+      className="flex items-center h-8 px-4 cursor-pointer select-none hover:bg-slate-300 transition-all"
       onClick={onPress}
     >
       <PlusOutlined className="mr-2" />

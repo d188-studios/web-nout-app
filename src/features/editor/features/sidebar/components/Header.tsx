@@ -11,7 +11,7 @@ export function Header({ className, onPressClose }: SidebarProps) {
   const username = 'John Doe';
 
   return (
-    <div className={clsx('w-full flex p-4 items-center', className)}>
+    <div className={clsx('w-full flex px-4 items-center h-16', className)}>
       <p className="flex-1 mb-0">
         {username}
       </p>
