@@ -6,17 +6,21 @@ import { useAuth } from '~/features/auth';
 export interface HeaderProps {}
 
 export function Header(props: HeaderProps) {
-  const { user, signOut } = useAuth();
-  const { setVisible } = useSidebar();
+  const { user } = useAuth();
+  const { setVisible, openUserContextMenu } = useSidebar();
 
   const nameInitial =
-    user.name.length > 0 ? user.name[0].toUpperCase() : undefined;
+    user.username.length > 0 ? user.username[0].toUpperCase() : undefined;
 
   return (
     <div
       className="w-full flex px-4 items-center h-16"
-      onClick={() => {
-        signOut();
+      onClick={(e) => {
+        e.stopPropagation();
+        openUserContextMenu({
+          x: e.pageX,
+          y: e.pageY,
+        });
       }}
     >
       {nameInitial ? (
@@ -24,7 +28,7 @@ export function Header(props: HeaderProps) {
           {nameInitial}
         </Avatar>
       ) : null}
-      <p className="flex-1 mb-0">{user.name}</p>
+      <p className="flex-1 mb-0">{user.username}</p>
       <Button
         className="bg-transparent border-0 shadow-none"
         onClick={() => {

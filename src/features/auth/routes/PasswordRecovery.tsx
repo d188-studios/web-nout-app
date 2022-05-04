@@ -3,12 +3,9 @@ import {
 } from '@ant-design/icons';
 import { Button, Input } from 'antd';
 import React from 'react';
-import { useAuth } from '../stores/auth';
 import { Link } from 'react-router-dom';
 
 export function PasswordRecovery() {
-  const { signIn } = useAuth();
-
   const [email, setEmail] = React.useState('');
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

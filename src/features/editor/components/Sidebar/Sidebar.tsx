@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useSidebar } from '../../stores/sidebar';
 import { Header } from './Header';
 import { PageNodeContextMenu, PageTree } from './PageTree';
+import UserContextMenu from './UserContextMenu';
 
 export function Sidebar() {
   const { visible } = useSidebar();
@@ -16,6 +17,7 @@ export function Sidebar() {
       <Header />
       <PageTree />
       <PageNodeContextMenu />
+      <UserContextMenu />
     </div>
   );
 }

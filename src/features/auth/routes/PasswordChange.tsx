@@ -5,12 +5,8 @@ import {
 } from '@ant-design/icons';
 import { Button, Input } from 'antd';
 import React from 'react';
-import { useAuth } from '../stores/auth';
-import { Link } from 'react-router-dom';
 
 export function PasswordChange() {
-  const { signIn } = useAuth();
-
   const [values, setValues] = React.useState({
     password: '',
     passwordConfirmation: '',

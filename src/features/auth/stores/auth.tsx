@@ -15,7 +15,6 @@ export interface AuthProviderValue extends AuthState {
 export const AuthContext = React.createContext<AuthProviderValue>({
   user: {
     id: '',
-    name: '',
     email: '',
     username: '',
   },
@@ -27,7 +26,6 @@ export const AuthContext = React.createContext<AuthProviderValue>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User>({
     id: '',
-    name: 'John Doe',
     email: '',
     username: '',
   });
@@ -38,7 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser({
       id: uuidv4(),
       email: credentials.email,
-      name: 'John Doe',
       username: 'johndoe',
     });
 
@@ -48,7 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = () => {
     setUser({
       id: '',
-      name: '',
       email: '',
       username: '',
     });

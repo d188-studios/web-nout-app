@@ -23,7 +23,7 @@ export interface EditorProviderValue extends EditorState {
   addPage: (page: Page | string | null, newPage: Page[] | Page) => void;
   openPageContextMenu: (page: Page, position: Position) => void;
   addOpenPageContextMenuListener: (
-    listener: (page: Page, position: Position) => void
+    onOpenPageContextMenu: (page: Page, position: Position) => void
   ) => void;
 }
 
