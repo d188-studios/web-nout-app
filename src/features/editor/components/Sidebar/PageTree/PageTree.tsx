@@ -7,7 +7,7 @@ export function PageTree() {
 
   return (
     <div className="flex-1 relative">
-      <div className="absolute inset-0 w-80">
+      <div className="absolute inset-0 w-80 overflow-auto">
         {pages.map((page) => (
           <PageNode key={page.id} page={page} />
         ))}

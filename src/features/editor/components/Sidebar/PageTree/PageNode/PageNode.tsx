@@ -12,7 +12,8 @@ export interface PageNodeProps {
 }
 
 export function PageNode({ page, level = 1 }: PageNodeProps) {
-  const { openPageContextMenu, setSelectedPage, selectedPage } = useEditor();
+  const { openPageContextMenu, setSelectedPage, selectedPage } =
+    useEditor();
   const [actionsVisible, setActionsVisible] = useState(false);
   const selected = selectedPage !== null && selectedPage.id === page.id;
 

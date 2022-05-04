@@ -1,6 +1,8 @@
 import { EventEmitter } from 'eventemitter3';
 import React, { useCallback, useRef } from 'react';
 import { Page, Position } from '../types';
+import EditorJS from '@editorjs/editorjs';
+import { EDITOR_JS_TOOLS } from './editorTools';
 
 import * as utils from '../utils';
 
@@ -25,6 +27,7 @@ export interface EditorProviderValue extends EditorState {
   addOpenPageContextMenuListener: (
     onOpenPageContextMenu: (page: Page, position: Position) => void
   ) => void;
+  ejsInstance: EditorJS | null;
 }
 
 export const EditorContext = React.createContext<EditorProviderValue>({
@@ -36,13 +39,32 @@ export const EditorContext = React.createContext<EditorProviderValue>({
   addPage: () => {},
   openPageContextMenu: () => {},
   addOpenPageContextMenuListener: () => {},
+  ejsInstance: null,
 });
 
 export function EditorProvider({ children }: { children: React.ReactNode }) {
   const eventEmitter = useRef(new EventEmitter()).current;
 
+  const ejsInstanceRef = useRef<EditorJS | null>(null);
+  const ejsInstance = ejsInstanceRef.current;
+
   const [pages, setPages] = React.useState<Page[]>([]);
-  const [selectedPage, setSelectedPage] = React.useState<Page | null>(null);
+  const [selectedPage, _setSelectedPage] = React.useState<Page | null>(null);
+
+  const setSelectedPage = useCallback((page: Page | null) => {
+    _setSelectedPage(page);
+    if (ejsInstanceRef.current) ejsInstanceRef.current.destroy();
+
+    ejsInstanceRef.current = page
+      ? new EditorJS({
+          holder: 'editorjs',
+          tools: EDITOR_JS_TOOLS,
+          data: {
+            blocks: [],
+          },
+        })
+      : null;
+  }, []);
 
   const isSelectedPage = (page: Page | string) => {
     if (selectedPage === null) return false;
@@ -118,6 +140,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         addPage,
         openPageContextMenu,
         addOpenPageContextMenuListener,
+        ejsInstance,
       }}
     >
       {children}
