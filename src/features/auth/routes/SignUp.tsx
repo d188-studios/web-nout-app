@@ -6,6 +6,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Button, Input } from 'antd';
+import { Link } from 'react-router-dom';
 
 export function SignUp() {
   return (
@@ -43,9 +44,15 @@ export function SignUp() {
             visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
           }
         />
-        <Button type="primary" block>
+        <Button className='mb-6' type="primary" block>
           Registrarme
         </Button>
+        <p className="text-center">
+          <span>¿Ya tienes una cuenta? </span>
+          <Link to="/auth/sign-in" replace>
+            Iniciar sesión
+          </Link>
+        </p>
       </div>
     </div>
   );

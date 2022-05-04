@@ -1,30 +1,23 @@
-import { Spin } from 'antd';
-import { Suspense } from 'react';
-import { Outlet, Route, Routes } from 'react-router-dom';
-import { AuthRoutes } from '~/features/auth';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AuthRoutes, useAuth } from '~/features/auth';
 import { Editor } from '~/features/editor';
 
-const Layout = () => {
-  return (
-    <Suspense
-      fallback={
-        <div className="h-full flex items-center justify-center">
-          <Spin size="large" />
-        </div>
-      }
-    >
-      <Outlet />
-    </Suspense>
-  );
-};
-
 export function AppRoutes() {
+  const { authenticated } = useAuth();
+
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Editor />} />
-        <Route path="auth/*" element={<AuthRoutes />} />
-      </Route>
+      {authenticated ? (
+        <>
+          <Route index element={<Editor />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </>
+      ) : (
+        <>
+          <Route path="/auth/*" element={<AuthRoutes />} />
+          <Route path="*" element={<Navigate to="/auth/sign-in" />} />
+        </>
+      )}
     </Routes>
   );
 }
