@@ -43,13 +43,13 @@ export function PageNode({ page, level = 1 }: PageNodeProps) {
         }}
       >
         <PageNodeExpandedArrows page={page} />
-        <div className='flex flex-1 overflow-hidden mr-2 items-center'>
+        <div className="flex flex-1 overflow-hidden mr-2 items-center">
           <FileOutlined />
           <p
-            className="mb-0 ml-2 truncate"
-            style={{
-              fontWeight: selected ? 'bold' : undefined,
-            }}
+            className={clsx(
+              'mb-0 ml-2 truncate',
+              selected ? 'font-bold' : undefined
+            )}
           >
             {page.title}
           </p>

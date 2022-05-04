@@ -1,8 +1,9 @@
 import { Button } from 'antd';
 import { DoubleRightOutlined, MenuOutlined } from '@ant-design/icons';
 import { useState } from 'react';
-import { useSidebar } from '../../stores/sidebar';
-import { useEditor } from '../../stores/editor';
+import { useEditor } from '~/features/editor/stores/editor';
+import { useSidebar } from '~/features/editor/stores/sidebar';
+import { Title } from './Title';
 
 export interface HeaderProps {}
 
@@ -17,7 +18,7 @@ export function Header(props: HeaderProps) {
         <Button
           onMouseEnter={() => setHoverMenu(true)}
           onMouseLeave={() => setHoverMenu(false)}
-          className="bg-transparent border-0 shadow-none"
+          className="bg-transparent border-0 shadow-none mr-2"
           onClick={() => {
             setVisible(true);
             setHoverMenu(false);
@@ -26,7 +27,7 @@ export function Header(props: HeaderProps) {
         />
       ) : null}
       {selectedPage !== null ? (
-        <span className="mx-2">{selectedPage.title}</span>
+        <Title page={selectedPage} />
       ) : null}
     </div>
   );
