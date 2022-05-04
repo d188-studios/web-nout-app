@@ -3,5 +3,9 @@ export type Page = {
   title: string;
   expanded?: boolean;
   children: Page[];
-  parent: Page | null;
+}
+
+export type Position = {
+  x: number;
+  y: number;
 }
