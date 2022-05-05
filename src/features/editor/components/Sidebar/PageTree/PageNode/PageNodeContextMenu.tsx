@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
-import { EditablePage, Page, Position } from '~/features/editor/types';
+import { Page, Position } from '~/features/editor/types';
 import { useEventEmitter } from '~/lib/eventemitter';
 
 export function PageNodeContextMenu() {
@@ -53,20 +53,7 @@ export function PageNodeContextMenu() {
           onClick={(e) => {
             e.stopPropagation();
 
-            const newTitle = prompt(
-              'Escribe el nuevo título de la página título',
-              page.title
-            );
-
-            emit<{
-              page: Page;
-              editedPage: EditablePage;
-            }>('updatePage', {
-              page,
-              editedPage: {
-                title: newTitle !== null ? newTitle : page.title,
-              },
-            });
+            emit('openRenamePageDialog', page);
 
             setPage(null);
           }}
@@ -79,7 +66,7 @@ export function PageNodeContextMenu() {
           onClick={(e) => {
             e.stopPropagation();
 
-            emit('deletePage', page);
+            emit('openDeletePageDialog', page);
 
             setPage(null);
           }}

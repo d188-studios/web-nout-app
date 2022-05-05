@@ -32,19 +32,15 @@ export function PageNodeActions({ visible, page }: PageNodeActionsProps) {
           onClick={(e) => {
             e.stopPropagation();
 
-            const title = prompt(
-              'Escribe el título de la página',
-              'Sin título'
-            );
             emit<{
               page: Page;
-              newPage: Page;
-            }>('addPage', {
-              page,
-              newPage: {
+              parent: Page;
+            }>('openAddPageDialog', {
+              parent: page,
+              page: {
                 id: uuidv4(),
+                title: 'Sin título',
                 children: [],
-                title: title !== null ? title : 'Sin título',
                 expanded: false,
               },
             });

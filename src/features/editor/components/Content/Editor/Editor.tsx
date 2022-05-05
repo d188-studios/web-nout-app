@@ -68,6 +68,7 @@ export function Editor(props: EditorProps) {
 
         ejsInstanceRef.current.blocks.update(BLOCK_PAGE_TITLE_ID, {
           text: updatedPage.title,
+          level: 1,
         });
       }
     );

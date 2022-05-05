@@ -21,18 +21,23 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [pages, setPages] = React.useState<Page[]>([]);
   const openPageIdRef = React.useRef<string | null>(null);
 
-  const isOpenPage = useCallback((page: Page) => {
-    if (openPageIdRef.current === null) return false;
+  const isOrContainsOpenPage = useCallback(
+    (page: Page) => {
+      if (openPageIdRef.current === null) return false;
 
-    return page.id === openPageIdRef.current;
-  }, []);
+      if (page.id === openPageIdRef.current) return true;
+
+      return utils.pagesContain(openPageIdRef.current, page.children);
+    },
+    [pages]
+  );
 
   /**
    * Open a page
    */
 
   useEffect(() => {
-    return addListener<Page>('openPage', page => {
+    return addListener<Page>('openPage', (page) => {
       openPageIdRef.current = page.id;
     });
   }, [addListener]);
@@ -45,14 +50,14 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     (page: Page) => {
       setPages((pages) =>
         utils.deletePage(page, pages, (deletedPage) => {
-          if(isOpenPage(deletedPage)) {
+          if (isOrContainsOpenPage(deletedPage)) {
             openPageIdRef.current = null;
             emit('deleteOpenPage', deletedPage);
           }
         })
       );
     },
-    [emit, isOpenPage]
+    [emit, isOrContainsOpenPage]
   );
 
   useEffect(() => {
@@ -67,8 +72,10 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     (page: Page | string, editedPage: EditablePage) => {
       setPages((pages) =>
         utils.updatePage(page, editedPage, pages, (updatedPage) => {
-          if(isOpenPage(updatedPage))
+          if (isOrContainsOpenPage(updatedPage)) {
+            openPageIdRef.current = updatedPage.id;
             emit('updateOpenPage', updatedPage);
+          }
         })
       );
     },
