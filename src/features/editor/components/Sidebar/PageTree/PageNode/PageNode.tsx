@@ -1,8 +1,8 @@
 import { FileOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
-import { useState } from 'react';
-import { useEditor } from '~/features/editor/stores/editor';
+import { useEffect, useState } from 'react';
 import { Page } from '~/features/editor/types';
+import { useEventEmitter } from '~/lib/eventemitter';
 import { PageNodeActions } from './PageNodeActions';
 import { PageNodeExpandedArrows } from './PageNodeExpandedArrows';
 
@@ -12,10 +12,15 @@ export interface PageNodeProps {
 }
 
 export function PageNode({ page, level = 1 }: PageNodeProps) {
-  const { openPageContextMenu, setSelectedPage, selectedPage } =
-    useEditor();
+  const { emit, addListener } = useEventEmitter();
   const [actionsVisible, setActionsVisible] = useState(false);
-  const selected = selectedPage !== null && selectedPage.id === page.id;
+  const [selected, setSelected] = useState(false);
+
+  useEffect(() => {
+    return addListener<Page>('openPage', (openPage) =>
+      setSelected(openPage.id === page.id)
+    );
+  }, [addListener, page.id]);
 
   return (
     <>
@@ -37,10 +42,13 @@ export function PageNode({ page, level = 1 }: PageNodeProps) {
           e.preventDefault();
           e.stopPropagation();
 
-          openPageContextMenu(page, { x: e.pageX, y: e.pageY });
+          emit('openPageContextMenu', {
+            page,
+            position: { x: e.pageX, y: e.pageY },
+          });
         }}
         onClick={() => {
-          setSelectedPage(page);
+          emit('openPage', page);
         }}
       >
         <PageNodeExpandedArrows page={page} />

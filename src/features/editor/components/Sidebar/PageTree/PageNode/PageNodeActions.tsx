@@ -1,8 +1,8 @@
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import { useEditor } from '~/features/editor/stores/editor';
 import { Page } from '~/features/editor/types';
 import { v4 as uuidv4 } from 'uuid';
+import { useEventEmitter } from '~/lib/eventemitter';
 
 export interface PageNodeActionsProps {
   visible?: boolean;
@@ -10,18 +10,18 @@ export interface PageNodeActionsProps {
 }
 
 export function PageNodeActions({ visible, page }: PageNodeActionsProps) {
-  const { addPage, openPageContextMenu } = useEditor();
+  const { emit } = useEventEmitter();
 
   if (visible)
     return (
-      <div className='flex'>
+      <div className="flex">
         <Button
           onClick={(e) => {
             e.stopPropagation();
 
-            openPageContextMenu(page, {
-              x: e.pageX,
-              y: e.pageY,
+            emit('openPageContextMenu', {
+              page,
+              position: { x: e.pageX, y: e.pageY },
             });
           }}
           className="mr-1 bg-transparent border-0 shadow-none"
@@ -36,12 +36,17 @@ export function PageNodeActions({ visible, page }: PageNodeActionsProps) {
               'Escribe el título de la página',
               'Sin título'
             );
-
-            addPage(page, {
-              id: uuidv4(),
-              children: [],
-              title: title !== null ? title : 'Sin título',
-              expanded: false,
+            emit<{
+              page: Page;
+              newPage: Page;
+            }>('addPage', {
+              page,
+              newPage: {
+                id: uuidv4(),
+                children: [],
+                title: title !== null ? title : 'Sin título',
+                expanded: false,
+              },
             });
           }}
           size="small"

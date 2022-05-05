@@ -1,146 +1,148 @@
-import { EventEmitter } from 'eventemitter3';
-import React, { useCallback, useRef } from 'react';
-import { Page, Position } from '../types';
-import EditorJS from '@editorjs/editorjs';
-import { EDITOR_JS_TOOLS } from './editorTools';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useCallback, useEffect } from 'react';
+import { EditablePage, Page } from '../types';
 
 import * as utils from '../utils';
+import { useEventEmitter } from '~/lib/eventemitter';
 
 export interface EditorState {
   pages: Page[];
-  selectedPage: Page | null;
 }
 
-export interface EditorProviderValue extends EditorState {
-  setSelectedPage: (page: Page | null) => void;
-  deletePage: (page: Page | string) => void;
-  updatePage: (
-    page: Page | string,
-    newPage: {
-      id?: string;
-      title?: string;
-      expanded?: boolean;
-    }
-  ) => void;
-  addPage: (page: Page | string | null, newPage: Page[] | Page) => void;
-  openPageContextMenu: (page: Page, position: Position) => void;
-  addOpenPageContextMenuListener: (
-    onOpenPageContextMenu: (page: Page, position: Position) => void
-  ) => void;
-  ejsInstance: EditorJS | null;
-}
+export interface EditorProviderValue extends EditorState {}
 
 export const EditorContext = React.createContext<EditorProviderValue>({
   pages: [],
-  selectedPage: null,
-  setSelectedPage: () => {},
-  deletePage: () => {},
-  updatePage: () => {},
-  addPage: () => {},
-  openPageContextMenu: () => {},
-  addOpenPageContextMenuListener: () => {},
-  ejsInstance: null,
 });
 
 export function EditorProvider({ children }: { children: React.ReactNode }) {
-  const eventEmitter = useRef(new EventEmitter()).current;
-
-  const ejsInstanceRef = useRef<EditorJS | null>(null);
-  const ejsInstance = ejsInstanceRef.current;
+  const { addListener, emit } = useEventEmitter();
 
   const [pages, setPages] = React.useState<Page[]>([]);
-  const [selectedPage, _setSelectedPage] = React.useState<Page | null>(null);
+  const openPageIdRef = React.useRef<string | null>(null);
 
-  const setSelectedPage = useCallback((page: Page | null) => {
-    _setSelectedPage(page);
-    if (ejsInstanceRef.current) ejsInstanceRef.current.destroy();
+  const isOpenPage = useCallback((page: Page) => {
+    if (openPageIdRef.current === null) return false;
 
-    ejsInstanceRef.current = page
-      ? new EditorJS({
-          holder: 'editorjs',
-          tools: EDITOR_JS_TOOLS,
-          data: {
-            blocks: [],
-          },
-        })
-      : null;
+    return page.id === openPageIdRef.current;
   }, []);
 
-  const isSelectedPage = (page: Page | string) => {
-    if (selectedPage === null) return false;
+  /**
+   * Open a page
+   */
 
-    return typeof page === 'string'
-      ? page === selectedPage.id
-      : page.id === selectedPage.id;
-  };
-
-  const openPageContextMenu = (page: Page, position: Position) => {
-    eventEmitter.emit('openPageContextMenu', {
-      page,
-      position,
+  useEffect(() => {
+    return addListener<Page>('openPage', page => {
+      openPageIdRef.current = page.id;
     });
-  };
+  }, [addListener]);
 
-  const addOpenPageContextMenuListener = useCallback(
-    (onOpenPageContextMenu: (page: Page, position: Position) => void) => {
-      const l = (e: { page: Page; position: Position }) =>
-        onOpenPageContextMenu(e.page, e.position);
+  /**
+   * Delete a page
+   */
 
-      eventEmitter.on('openPageContextMenu', l);
-
-      return () => {
-        eventEmitter.off('openPageContextMenu', l);
-      };
+  const deletePage = useCallback(
+    (page: Page) => {
+      setPages((pages) =>
+        utils.deletePage(page, pages, (deletedPage) => {
+          if(isOpenPage(deletedPage)) {
+            openPageIdRef.current = null;
+            emit('deleteOpenPage', deletedPage);
+          }
+        })
+      );
     },
-    [eventEmitter]
+    [emit, isOpenPage]
   );
 
-  const deletePage = (page: Page | string) => {
-    if (isSelectedPage(page)) setSelectedPage(null);
+  useEffect(() => {
+    return addListener<Page>('deletePage', deletePage);
+  }, [addListener, deletePage]);
 
-    setPages((pages) => utils.deletePage(page, pages));
-  };
+  /**
+   * Update a page
+   */
 
-  const updatePage = (
-    page: Page | string,
-    newPage: {
-      id?: string;
-      title?: string;
-      expanded?: boolean;
-    }
-  ) => {
-    if (isSelectedPage(page) && selectedPage !== null) {
-      const newSelectedPage = {
-        ...selectedPage,
-      };
+  const updatePage = useCallback(
+    (page: Page | string, editedPage: EditablePage) => {
+      setPages((pages) =>
+        utils.updatePage(page, editedPage, pages, (updatedPage) => {
+          if(isOpenPage(updatedPage))
+            emit('updateOpenPage', updatedPage);
+        })
+      );
+    },
+    []
+  );
 
-      if (newPage.id !== undefined) newSelectedPage.id = newPage.id;
-      if (newPage.title !== undefined) newSelectedPage.title = newPage.title;
-      if (newPage.expanded !== undefined)
-        newSelectedPage.expanded = newPage.expanded;
+  useEffect(() => {
+    return addListener<{
+      page: Page;
+      editedPage: EditablePage;
+    }>('updatePage', ({ page, editedPage }) => updatePage(page, editedPage));
+  }, [addListener, updatePage]);
 
-      setSelectedPage(newSelectedPage);
-    }
+  /**
+   * Expand a page
+   */
 
-    setPages((pages) => utils.updatePage(page, newPage, pages));
-  };
+  const expandPage = useCallback((page: Page) => {
+    setPages((pages) => utils.updatePage(page, { expanded: true }, pages));
+  }, []);
 
-  const addPage = (page: Page | string | null, newPage: Page[] | Page) => {
+  useEffect(() => {
+    return addListener<Page>('expandPage', expandPage);
+  }, [addListener, expandPage]);
+
+  /**
+   * Collapse a page
+   */
+
+  const collapsePage = useCallback((page: Page) => {
+    setPages((pages) => utils.updatePage(page, { expanded: false }, pages));
+  }, []);
+
+  useEffect(() => {
+    return addListener<Page>('collapsePage', collapsePage);
+  }, [addListener, collapsePage]);
+
+  /**
+   * Toggle page expanded
+   */
+
+  const togglePageExpanded = useCallback((page: Page) => {
+    setPages((pages) =>
+      utils.updatePage(page, { expanded: !page.expanded }, pages)
+    );
+  }, []);
+
+  useEffect(() => {
+    return addListener<Page>('togglePageExpanded', togglePageExpanded);
+  }, [addListener, togglePageExpanded]);
+
+  /**
+   * Add a page
+   */
+
+  const addPage = useCallback((page: Page | null, newPage: Page) => {
     setPages((pages) => utils.addChildrenToPage(page, newPage, pages));
-  };
+  }, []);
+
+  useEffect(() => {
+    return addListener<{ page: Page; newPage: Page }>(
+      'addPage',
+      ({ page, newPage }) => addPage(page, newPage)
+    );
+  }, [addListener, addPage]);
+
+  useEffect(() => {
+    return addListener<Page>('addRootPage', (page) => addPage(null, page));
+  }, [addListener, addPage]);
 
   return (
     <EditorContext.Provider
       value={{
         pages,
-        selectedPage,
-        setSelectedPage,
-        deletePage,
-        updatePage,
-        addPage,
-        openPageContextMenu,
-        addOpenPageContextMenuListener,
-        ejsInstance,
       }}
     >
       {children}

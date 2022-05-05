@@ -1,14 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import { PlusOutlined } from '@ant-design/icons';
-import { useEditor } from '~/features/editor/stores/editor';
+import { useEventEmitter } from '~/lib/eventemitter';
+import { Page } from '~/features/editor/types';
 
-export interface NewPageButtonProps {
-}
+export interface NewPageButtonProps {}
 
 export default function NewPageButton(props: NewPageButtonProps) {
-  const {
-    addPage,
-  } = useEditor();
+  const { emit } = useEventEmitter();
 
   return (
     <div
@@ -16,7 +14,7 @@ export default function NewPageButton(props: NewPageButtonProps) {
       onClick={() => {
         const title = prompt('Escribe el título de la página', 'Sin título');
 
-        addPage(null, {
+        emit<Page>('addRootPage', {
           id: uuidv4(),
           title: title !== null ? title : 'Sin título',
           children: [],

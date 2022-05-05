@@ -1,14 +1,14 @@
 import { Avatar, Button } from 'antd';
 import { DoubleLeftOutlined } from '@ant-design/icons';
-import { useSidebar } from '../../stores/sidebar';
 import { useAuth } from '~/features/auth';
+import { useEventEmitter } from '~/lib/eventemitter';
+import { Position } from '../../types';
 
 export interface HeaderProps {}
 
 export function Header(props: HeaderProps) {
   const { user } = useAuth();
-  const { setVisible, openUserContextMenu } = useSidebar();
-
+  const { emit } = useEventEmitter();
   const nameInitial =
     user.username.length > 0 ? user.username[0].toUpperCase() : undefined;
 
@@ -17,7 +17,7 @@ export function Header(props: HeaderProps) {
       className="w-full flex px-4 items-center h-16"
       onClick={(e) => {
         e.stopPropagation();
-        openUserContextMenu({
+        emit<Position>('openUserContextMenu', {
           x: e.pageX,
           y: e.pageY,
         });
@@ -31,8 +31,9 @@ export function Header(props: HeaderProps) {
       <p className="flex-1 mb-0">{user.username}</p>
       <Button
         className="bg-transparent border-0 shadow-none"
-        onClick={() => {
-          setVisible(false);
+        onClick={(e) => {
+          e.stopPropagation();
+          emit('closeSidebar');
         }}
         icon={<DoubleLeftOutlined />}
       />

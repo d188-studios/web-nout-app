@@ -1,2 +1,2 @@
 export * from './PageTree';
-export * from './PageNodeContextMenu';
+export { PageNodeContextMenu } from './PageNode';

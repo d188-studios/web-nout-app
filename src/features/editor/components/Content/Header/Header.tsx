@@ -1,34 +1,47 @@
 import { Button } from 'antd';
 import { DoubleRightOutlined, MenuOutlined } from '@ant-design/icons';
-import { useState } from 'react';
-import { useEditor } from '~/features/editor/stores/editor';
-import { useSidebar } from '~/features/editor/stores/sidebar';
+import { useEffect, useState } from 'react';
 import { Title } from './Title';
+import { useEventEmitter } from '~/lib/eventemitter';
 
 export interface HeaderProps {}
 
 export function Header(props: HeaderProps) {
-  const { visible, setVisible } = useSidebar();
-  const { selectedPage } = useEditor();
+  const {
+    emit,
+    addListener
+  } = useEventEmitter();
+
+  const [visibleMenu, setVisibleMenu] = useState(false);
   const [hoverMenu, setHoverMenu] = useState(false);
 
+  useEffect(() => {
+    return addListener('closeSidebar', () => {
+      setVisibleMenu(true);
+    });
+  }, [addListener]);
+
+  useEffect(() => {
+    return addListener('openSidebar', () => {
+      setVisibleMenu(false);
+    });
+  }, [addListener]);
+
   return (
-    <div className="px-4 h-16 flex items-center">
-      {!visible ? (
+    <div className="px-4 h-16 flex items-center bg-slate-50">
+      {visibleMenu ? (
         <Button
           onMouseEnter={() => setHoverMenu(true)}
           onMouseLeave={() => setHoverMenu(false)}
           className="bg-transparent border-0 shadow-none mr-2"
           onClick={() => {
-            setVisible(true);
+            emit('openSidebar');
             setHoverMenu(false);
           }}
           icon={hoverMenu ? <DoubleRightOutlined /> : <MenuOutlined />}
         />
       ) : null}
-      {selectedPage !== null ? (
-        <Title page={selectedPage} />
-      ) : null}
+      <Title />
     </div>
   );
 }

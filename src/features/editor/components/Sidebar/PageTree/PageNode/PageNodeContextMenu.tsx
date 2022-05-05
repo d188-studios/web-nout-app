@@ -1,15 +1,24 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
-import { useEditor } from '~/features/editor/stores/editor';
-import { Page } from '~/features/editor/types';
+import { EditablePage, Page, Position } from '~/features/editor/types';
+import { useEventEmitter } from '~/lib/eventemitter';
 
 export function PageNodeContextMenu() {
-  const { addOpenPageContextMenuListener, deletePage, updatePage } =
-    useEditor();
+  const { addListener, emit } = useEventEmitter();
 
   const [page, setPage] = useState<Page | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    return addListener<{
+      page: Page;
+      position: Position;
+    }>('openPageContextMenu', ({ page, position }) => {
+      setPage(page);
+      setPosition(position);
+    });
+  }, [addListener]);
 
   useEffect(() => {
     const onPressOutside = () => {
@@ -27,20 +36,13 @@ export function PageNodeContextMenu() {
     }
   }, []);
 
-  useEffect(() => {
-    return addOpenPageContextMenuListener((page, position) => {
-      setPage(page);
-      setPosition(position);
-    });
-  }, [addOpenPageContextMenuListener]);
-
   const itemClassName =
     'rounded flex items-center h-8 px-3 cursor-pointer select-none hover:bg-slate-200 transition-all';
 
   if (page !== null)
     return (
       <div
-        className="absolute bg-white p-1 shadow-md rounded w-40"
+        className="absolute bg-white p-1 shadow-md rounded w-40 z-[9999]"
         style={{
           top: position.y,
           left: position.x,
@@ -56,8 +58,14 @@ export function PageNodeContextMenu() {
               page.title
             );
 
-            updatePage(page, {
-              title: newTitle !== null ? newTitle : page.title,
+            emit<{
+              page: Page;
+              editedPage: EditablePage;
+            }>('updatePage', {
+              page,
+              editedPage: {
+                title: newTitle !== null ? newTitle : page.title,
+              },
             });
 
             setPage(null);
@@ -71,7 +79,8 @@ export function PageNodeContextMenu() {
           onClick={(e) => {
             e.stopPropagation();
 
-            deletePage(page);
+            emit('deletePage', page);
+
             setPage(null);
           }}
         >

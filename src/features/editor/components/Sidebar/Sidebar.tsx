@@ -1,11 +1,28 @@
 import clsx from 'clsx';
-import { useSidebar } from '../../stores/sidebar';
+import React, { useEffect } from 'react';
+import { useEventEmitter } from '~/lib/eventemitter';
 import { Header } from './Header';
 import { PageNodeContextMenu, PageTree } from './PageTree';
 import UserContextMenu from './UserContextMenu';
 
 export function Sidebar() {
-  const { visible } = useSidebar();
+  const {
+    addListener
+  } = useEventEmitter();
+
+  const [visible, setVisible] = React.useState(true);
+
+  useEffect(() => {
+    return addListener('openSidebar', () => {
+      setVisible(true);
+    })
+  }, [addListener]);
+
+  useEffect(() => {
+    return addListener('closeSidebar', () => {
+      setVisible(false);
+    })
+  }, [addListener]);
 
   return (
     <div
