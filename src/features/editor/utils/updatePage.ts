@@ -9,7 +9,7 @@ export function updatePage(
     expanded?: boolean;
   },
   pages: Page[],
-  callback?: (updatedPage: Page) => void,
+  callback?: (updatedPage: Page, pages: Page[]) => void,
 ): Page[] {
   const path = getPagePath(page, pages);
   if (path.length === 0) return pages;
@@ -29,7 +29,7 @@ export function updatePage(
   if(newPage.expanded !== undefined)
     pageToUpdate.expanded = newPage.expanded;
 
-  if (callback) callback(pageToUpdate);
+  if (callback) callback(pageToUpdate, newPages);
 
   return newPages;
 }

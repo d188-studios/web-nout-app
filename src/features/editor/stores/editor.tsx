@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect } from 'react';
-import { EditablePage, Page } from '../types';
+import { EditablePage, Page, PagePath } from '../types';
 
 import * as utils from '../utils';
 import { useEventEmitter } from '~/lib/eventemitter';
@@ -15,11 +15,36 @@ export const EditorContext = React.createContext<EditorProviderValue>({
   pages: [],
 });
 
+function getPagePath(page: Page | string, pages: Page[]): PagePath[] {
+  const path = utils.getPagePath(page, pages);
+  const pagePath: PagePath[] = [];
+  let children = pages;
+  for (let i = 0; i < path.length - 1; i++) {
+    const page = children[path[i]];
+    pagePath.push({
+      id: page.id,
+      title: page.title,
+    });
+    children = page.children;
+  }
+
+  return pagePath;
+}
+
 export function EditorProvider({ children }: { children: React.ReactNode }) {
   const { addListener, emit } = useEventEmitter();
 
   const [pages, setPages] = React.useState<Page[]>([]);
   const openPageIdRef = React.useRef<string | null>(null);
+
+  const isOpenPage = useCallback(
+    (page: Page) => {
+      if (openPageIdRef.current === null) return false;
+
+      if (page.id === openPageIdRef.current) return true;
+    },
+    [pages]
+  );
 
   const isOrContainsOpenPage = useCallback(
     (page: Page) => {
@@ -39,8 +64,10 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     return addListener<Page>('openPage', (page) => {
       openPageIdRef.current = page.id;
+
+      emit('openPagePath', getPagePath(page, pages));
     });
-  }, [addListener]);
+  }, [addListener, pages]);
 
   /**
    * Delete a page
@@ -49,8 +76,11 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   const deletePage = useCallback(
     (page: Page) => {
       setPages((pages) =>
-        utils.deletePage(page, pages, (deletedPage) => {
+        utils.deletePage(page, pages, (deletedPage, newPages) => {
           if (isOrContainsOpenPage(deletedPage)) {
+            if (openPageIdRef.current !== null)
+              emit('openPagePath', getPagePath(openPageIdRef.current, newPages));
+
             openPageIdRef.current = null;
             emit('deleteOpenPage', deletedPage);
           }
@@ -68,19 +98,20 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
    * Update a page
    */
 
-  const updatePage = useCallback(
-    (page: Page | string, editedPage: EditablePage) => {
-      setPages((pages) =>
-        utils.updatePage(page, editedPage, pages, (updatedPage) => {
-          if (isOrContainsOpenPage(updatedPage)) {
-            openPageIdRef.current = updatedPage.id;
-            emit('updateOpenPage', updatedPage);
-          }
-        })
-      );
-    },
-    []
-  );
+  const updatePage = useCallback((page: Page, editedPage: EditablePage) => {
+    setPages((pages) =>
+      utils.updatePage(page, editedPage, pages, (updatedPage, newPages) => {
+        if (isOpenPage(updatedPage)) {
+          openPageIdRef.current = updatedPage.id;
+
+          emit('updateOpenPage', updatedPage);
+        }
+
+        if (isOrContainsOpenPage(updatedPage) && openPageIdRef.current !== null)
+          emit('openPagePath', getPagePath(openPageIdRef.current, newPages));
+      })
+    );
+  }, []);
 
   useEffect(() => {
     return addListener<{
@@ -140,10 +171,6 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
       'addPage',
       ({ page, newPage }) => addPage(page, newPage)
     );
-  }, [addListener, addPage]);
-
-  useEffect(() => {
-    return addListener<Page>('addRootPage', (page) => addPage(null, page));
   }, [addListener, addPage]);
 
   return (

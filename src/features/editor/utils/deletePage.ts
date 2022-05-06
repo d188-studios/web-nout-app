@@ -2,7 +2,7 @@ import { Page } from '../types';
 import { getPagePath } from './getPagePath';
 
 export function deletePage(page: Page | string, pages: Page[],
-  callback?: (pageDeleted: Page) => void
+  callback?: (pageDeleted: Page, pages: Page[]) => void
   ): Page[] {
   const path = getPagePath(page, pages);
   if (path.length === 0) return pages;
@@ -15,7 +15,7 @@ export function deletePage(page: Page | string, pages: Page[],
 
   const pagesDeleted = parentPages.splice(path[path.length - 1], 1);
 
-  if (callback) callback(pagesDeleted[0]);
+  if (callback) callback(pagesDeleted[0], newPages);
 
   return newPages;
 }

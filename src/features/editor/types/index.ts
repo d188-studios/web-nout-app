@@ -5,6 +5,11 @@ export type Page = {
   children: Page[];
 };
 
+export interface PagePath {
+  title: string;
+  id: string;
+}
+
 export type EditablePage = {
   id?: string;
   title?: string;

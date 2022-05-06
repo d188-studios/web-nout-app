@@ -43,7 +43,7 @@ export default function UserContextMenu() {
         onClick={(e) => {
           e.stopPropagation();
         }}
-        className="absolute bg-white shadow-md rounded w-80 top-14 left-4 z"
+        className="absolute bg-white shadow-md rounded w-80 top-14 left-4 z-[9999]"
       >
         <div
           className="
