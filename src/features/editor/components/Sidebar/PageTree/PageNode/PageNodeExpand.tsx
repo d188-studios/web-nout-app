@@ -1,21 +1,14 @@
-import {
-  CaretDownFilled,
-  CaretRightFilled,
-} from '@ant-design/icons';
+import { CaretDownFilled, CaretRightFilled } from '@ant-design/icons';
 import { Button } from 'antd';
+import { usePages, toggleExpandPage } from '~/features/editor/stores/pages';
 import { Page } from '~/features/editor/types';
-import { useEventEmitter } from '~/lib/eventemitter';
 
-export interface PageNodeExpandedArrowsProps {
+export interface PageNodeExpandProps {
   page: Page;
 }
 
-export function PageNodeExpandedArrows({
-  page
-}: PageNodeExpandedArrowsProps) {
-  const {
-    emit
-  } = useEventEmitter();
+export function PageNodeExpand({ page }: PageNodeExpandProps) {
+  const { dispatch } = usePages();
 
   const visible = page.children.length > 0;
   const expanded = page.expanded;
@@ -25,7 +18,7 @@ export function PageNodeExpandedArrows({
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          emit('togglePageExpanded', page);
+          dispatch(toggleExpandPage(page.id));
         }}
         className="mr-2 bg-transparent border-none shadow-none"
         size="small"

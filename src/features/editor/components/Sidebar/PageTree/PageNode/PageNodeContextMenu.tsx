@@ -1,18 +1,18 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
-import { Page, Position } from '~/features/editor/types';
+import { PageRenameProps, Position } from '~/features/editor/types';
 import { useEventEmitter } from '~/lib/eventemitter';
 
 export function PageNodeContextMenu() {
   const { addListener, emit } = useEventEmitter();
 
-  const [page, setPage] = useState<Page | null>(null);
+  const [page, setPage] = useState<PageRenameProps | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     return addListener<{
-      page: Page;
+      page: PageRenameProps;
       position: Position;
     }>('openPageContextMenu', ({ page, position }) => {
       setPage(page);

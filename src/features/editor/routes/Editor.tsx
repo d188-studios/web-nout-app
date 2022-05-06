@@ -1,9 +1,9 @@
 import { Sidebar } from '../components/Sidebar';
 import { Content } from '../components/Content';
 import { EditorProviders } from '../providers';
-import { RenamePageDialog } from '../components/RenamePageDialog';
-import { DeletePageDialog } from '../components/DeletePageDialog';
-import { AddPageDialog } from '../components/AddPageDialog';
+import { AddPageDialog } from '../components/Sidebar/AddPageDialog';
+import { RenamePageDialog } from '../components/Sidebar/RenamePageDialog';
+import { DeletePageDialog } from '../components/Sidebar/DeletePageDialog';
 
 export function Editor() {
   return (

@@ -1,9 +1,9 @@
-import { useEditor } from '~/features/editor/stores/editor';
+import { usePages } from '~/features/editor/stores/pages';
 import NewPageButton from './NewPageButton';
 import { PageNode } from './PageNode';
 
 export function PageTree() {
-  const { pages } = useEditor();
+  const { pages } = usePages();
 
   return (
     <div className="flex-1 relative">

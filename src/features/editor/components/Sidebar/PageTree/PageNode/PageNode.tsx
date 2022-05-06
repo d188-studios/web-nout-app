@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Page } from '~/features/editor/types';
 import { useEventEmitter } from '~/lib/eventemitter';
 import { PageNodeActions } from './PageNodeActions';
-import { PageNodeExpandedArrows } from './PageNodeExpandedArrows';
+import { PageNodeExpand } from './PageNodeExpand';
 
 export interface PageNodeProps {
   page: Page;
@@ -48,10 +48,10 @@ export function PageNode({ page, level = 1 }: PageNodeProps) {
           });
         }}
         onClick={() => {
-          emit('openPage', page);
+          // emit('openPage', page);
         }}
       >
-        <PageNodeExpandedArrows page={page} />
+        <PageNodeExpand page={page} />
         <div className="flex flex-1 overflow-hidden mr-2 items-center">
           <FileOutlined />
           <p

@@ -1,4 +1,9 @@
-import { Page, PageCreateProps, PageInsertProps, PageUpdateProps } from '../types';
+import {
+  Page,
+  PageCreateProps,
+  PageInsertProps,
+  PageUpdateProps,
+} from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 export class PageTree {
@@ -9,7 +14,10 @@ export class PageTree {
       const page = pages[i];
 
       if (page.id === id) return page;
-      if (page.children.length > 0) return this._findPage(id, page.children);
+      if (page.children.length > 0) {
+        const child = this._findPage(id, page.children);
+        if (child !== null) return child;
+      }
     }
 
     return null;
@@ -46,6 +54,7 @@ export class PageTree {
         parent: parent.id,
       });
 
+      parent.expanded = true;
       return parent.children[l - 1];
     }
 
@@ -71,7 +80,6 @@ export class PageTree {
 
       if (page.children.length > 0) {
         const child = this._deletePage(id, page.children);
-
         if (child !== null) return child;
       }
     }
