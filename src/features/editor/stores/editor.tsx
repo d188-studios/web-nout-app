@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect } from 'react';
 import { EditablePage, Page, PagePath } from '../types';
 
@@ -43,7 +42,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
       if (page.id === openPageIdRef.current) return true;
     },
-    [pages]
+    []
   );
 
   const isOrContainsOpenPage = useCallback(
@@ -54,7 +53,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
       return utils.pagesContain(openPageIdRef.current, page.children);
     },
-    [pages]
+    []
   );
 
   /**
@@ -67,7 +66,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
       emit('openPagePath', getPagePath(page, pages));
     });
-  }, [addListener, pages]);
+  }, [addListener, emit, pages]);
 
   /**
    * Delete a page

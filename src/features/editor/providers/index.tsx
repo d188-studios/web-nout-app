@@ -1,5 +1,10 @@
 import { EditorProvider } from '../stores/editor';
+import { PagesProvider } from '../stores/pages';
 
 export function EditorProviders({ children }: { children: React.ReactNode }) {
-  return <EditorProvider>{children}</EditorProvider>;
+  return (
+    <PagesProvider>
+      <EditorProvider>{children}</EditorProvider>;
+    </PagesProvider>
+  );
 }

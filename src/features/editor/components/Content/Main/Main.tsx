@@ -8,7 +8,7 @@ export interface EditorProps {}
 
 const BLOCK_PAGE_TITLE_ID = 'pageTitle';
 
-export function Editor(props: EditorProps) {
+export function Main(props: EditorProps) {
   const { addListener, emit } = useEventEmitter();
   const editorRef = useRef<EditorJS | null>(null);
   const [page, setPage] = React.useState<Page | null>(null);
