@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { axios } from '~/lib/axios';
 import { Either } from '~/utils/Either';
 import {
@@ -14,7 +15,6 @@ import { PageTree } from '../utils/PageTree';
 export interface PagesState {
   pages: Page[];
   loading: boolean;
-  selectedPageId: string | null;
 }
 
 export type PagesAction =
@@ -30,8 +30,7 @@ export type PagesAction =
     }
   | { type: 'EXPAND_PAGE'; payload: string }
   | { type: 'COLLAPSE_PAGE'; payload: string }
-  | { type: 'TOGGLE_EXPAND_PAGE'; payload: string }
-  | { type: 'SELECT_PAGE'; payload: string | null };
+  | { type: 'TOGGLE_EXPAND_PAGE'; payload: string };
 
 const _setPages = (pages: Page[]): PagesAction => ({
   type: 'SET_PAGES',
@@ -85,11 +84,6 @@ const _toggleExpandPage = (id: string): PagesAction => ({
   payload: id,
 });
 
-export const selectPage = (id: string | null): PagesAction => ({
-  type: 'SELECT_PAGE',
-  payload: id,
-});
-
 function reducer(state: PagesState, action: PagesAction): PagesState {
   const pageTree = new PageTree(JSON.parse(JSON.stringify(state.pages)));
 
@@ -111,7 +105,6 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
       if (insertedPage)
         return {
           ...state,
-          selectedPageId: insertedPage.id,
           pages: pageTree.pages,
         };
       break;
@@ -121,7 +114,6 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
       if (createdPage)
         return {
           ...state,
-          selectedPageId: createdPage.id,
           pages: pageTree.pages,
         };
       break;
@@ -132,21 +124,10 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
       break;
 
     case 'DELETE_PAGE':
-      let selectedPageDeleted = false;
-
-      if (state.selectedPageId !== null) {
-        selectedPageDeleted = state.selectedPageId === action.payload;
-        selectedPageDeleted =
-          selectedPageDeleted ||
-          pageTree.findPageInParent(action.payload, state.selectedPageId) !==
-            null;
-      }
-
       const deletedPage = pageTree.deletePage(action.payload);
       if (deletedPage) {
         return {
           ...state,
-          selectedPageId: selectedPageDeleted ? null : state.selectedPageId,
           pages: pageTree.pages,
         };
       }
@@ -174,9 +155,6 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
       const toggledPage = pageTree.toggleExpandPage(action.payload);
       if (toggledPage) return { ...state, pages: pageTree.pages };
       break;
-
-    case 'SELECT_PAGE':
-      return { ...state, selectedPageId: action.payload };
   }
 
   return state;
@@ -184,8 +162,8 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
 
 export type PagesProviderValue = [
   PagesState & {
-    selectedPage: Page | null;
-    selectedPagePath: Page[];
+    findPage: (id: string) => Page | null;
+    getPagePath: (id: string) => Page[];
     fetchPages: () => Promise<Either<Error, Page[]>>;
     deletePage: (id: string) => Promise<Either<Error, string>>;
     createPage: (page: PageCreateProps) => Promise<Either<Error, Page>>;
@@ -200,9 +178,8 @@ export const PagesContext = React.createContext<PagesProviderValue>([
   {
     pages: [],
     loading: true,
-    selectedPageId: null,
-    selectedPage: null,
-    selectedPagePath: [],
+    findPage: () => null,
+    getPagePath: () => [],
     fetchPages: () => Promise.resolve(Either.right([])),
     deletePage: () => Promise.resolve(Either.right('')),
     createPage: () =>
@@ -246,12 +223,13 @@ export const PagesContext = React.createContext<PagesProviderValue>([
 ]);
 
 export function PagesProvider({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const { selectedPageId } = useParams();
   const [state, dispatch] = React.useReducer(reducer, {
     pages: [],
-    selectedPageId: null,
     loading: true,
   });
-  const { pages, selectedPageId } = state;
+  const { pages } = state;
   const pagesRef = React.useRef(pages);
 
   if (pagesRef.current !== pages) pagesRef.current = pages;
@@ -264,16 +242,13 @@ export function PagesProvider({ children }: { children: React.ReactNode }) {
     [pages]
   );
 
-  const selectedPage = useMemo(() => {
-    if (!selectedPageId) return null;
-    return findPage(selectedPageId);
-  }, [selectedPageId, findPage]);
-
-  const selectedPagePath = useMemo(() => {
-    if (!selectedPage) return [];
-    const pageTree = new PageTree(state.pages);
-    return pageTree.getPagePath(selectedPage.id);
-  }, [selectedPage, state.pages]);
+  const getPagePath = useCallback(
+    (id: string) => {
+      const pageTree = new PageTree(pages);
+      return pageTree.getPagePath(id);
+    },
+    [pages]
+  );
 
   const fetchPages = useCallback(async () => {
     try {
@@ -353,6 +328,7 @@ export function PagesProvider({ children }: { children: React.ReactNode }) {
         // !! End of hack.
 
         dispatch(_insertPage(newPage));
+        navigate(`/${newPage.id}`);
 
         return Either.right<Error, Page>(newPage);
       } catch {
@@ -361,22 +337,37 @@ export function PagesProvider({ children }: { children: React.ReactNode }) {
         );
       }
     },
-    [expandPage]
+    [expandPage, navigate]
   );
 
-  const deletePage = useCallback(async (id: string) => {
-    try {
-      await axios.delete<void>(`/pages/${id}`);
+  const deletePage = useCallback(
+    async (id: string) => {
+      try {
+        await axios.delete<void>(`/pages/${id}`);
 
-      dispatch(_deletePage(id));
+        const pageTree = new PageTree(
+          JSON.parse(JSON.stringify(pagesRef.current))
+        );
 
-      return Either.right<Error, string>(id);
-    } catch {
-      return Either.left<Error, string>(
-        new Error('Ha ocurrido un error al eliminar la página.')
-      );
-    }
-  }, []);
+        if (selectedPageId !== undefined) {
+          const selectedPageDeleted =
+            selectedPageId === id ||
+            pageTree.findPageInParent(id, selectedPageId) !== null;
+
+          if (selectedPageDeleted) navigate('/');
+        }
+
+        dispatch(_deletePage(id));
+
+        return Either.right<Error, string>(id);
+      } catch {
+        return Either.left<Error, string>(
+          new Error('Ha ocurrido un error al eliminar la página.')
+        );
+      }
+    },
+    [navigate, selectedPageId]
+  );
 
   const renamePage = useCallback(async (page: PageRenameProps) => {
     try {
@@ -394,19 +385,29 @@ export function PagesProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // const selectPage = useCallback(
+  //   (id: string | null) => {
+  //     dispatch(_selectPage(id));
+  //   },
+  //   []
+  // );
+
   return (
     <PagesContext.Provider
       value={[
         {
           ...state,
-          selectedPage,
-          selectedPagePath,
+          // selectedPage,
+          // selectedPagePath,
+          findPage,
+          getPagePath,
           fetchPages,
           deletePage,
           createPage,
           renamePage,
           expandPage,
           collapsePage,
+          // selectPage,
         },
         dispatch,
       ]}

@@ -34,7 +34,6 @@ export function SignIn() {
     e.preventDefault();
 
     setLoading(true);
-    setError(null);
 
     const either = await signIn(values);
     either.fold(

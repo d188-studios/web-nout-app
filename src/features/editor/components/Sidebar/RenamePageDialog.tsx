@@ -19,11 +19,11 @@ export function RenamePageDialog() {
 
   const onClose = () => {
     setVisible(false);
+    setError(null);
   };
 
   const onSave = async () => {
     setLoading(true);
-    setError(null);
 
     const either = await renamePage(newPage);
 
@@ -32,7 +32,6 @@ export function RenamePageDialog() {
         setError(e);
       },
       () => {
-        setError(null);
         onClose();
       }
     );

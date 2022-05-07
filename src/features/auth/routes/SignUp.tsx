@@ -37,8 +37,6 @@ export function SignUp() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setError(null);
-
     if (values.password.length < 6) {
       setError(new Error('La contraseña debe tener al menos 6 caracteres.'));
     } else if (values.password !== values.passwordConfirmation) {

@@ -21,11 +21,11 @@ export function DeletePageDialog() {
 
   const onClose = () => {
     setVisible(false);
+    setError(null);
   };
 
   const onDelete = async () => {
     setLoading(true);
-    setError(null);
 
     notifications.notify({
       name: 'page:delete',
@@ -39,7 +39,6 @@ export function DeletePageDialog() {
         setError(e);
       },
       () => {
-        setError(null);
         onClose();
       }
     );

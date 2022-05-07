@@ -18,11 +18,11 @@ export function AddPageDialog() {
 
   const onClose = () => {
     setVisible(false);
+    setError(null);
   };
 
   const onSave = async () => {
     setLoading(true);
-    setError(null);
 
     const either = await createPage(newPage);
 
@@ -31,7 +31,6 @@ export function AddPageDialog() {
         setError(e);
       },
       () => {
-        setError(null);
         onClose();
       }
     );

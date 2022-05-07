@@ -23,6 +23,7 @@ export function AppRoutes() {
       {authenticated ? (
         <>
           <Route index element={<Editor />} />
+          <Route path="/:selectedPageId" element={<Editor />} />
           <Route path="*" element={<Navigate to="/" />} />
         </>
       ) : (

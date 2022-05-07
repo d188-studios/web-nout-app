@@ -1,16 +1,31 @@
 import clsx from 'clsx';
-import React from 'react';
-import { usePages, selectPage } from '~/features/editor/stores/pages';
+import React, { useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { usePages } from '~/features/editor/stores/pages';
 import { useEventEmitter } from '~/lib/eventemitter';
 
 export interface TitleProps {}
 
 export function Title(props: TitleProps) {
+  const navigate = useNavigate();
+  const { selectedPageId } = useParams();
   const { emit } = useEventEmitter();
-  const { selectedPage, selectedPagePath, dispatch } = usePages();
   const [hoverPagePathId, setHoverPagePathId] = React.useState<string | null>(
     null
   );
+  const { findPage, getPagePath } = usePages();
+
+  const selectedPage = useMemo(() => {
+    if(selectedPageId === undefined) return null;
+
+    return findPage(selectedPageId);
+  }, [selectedPageId, findPage]);
+
+  const selectedPagePath = useMemo(() => {
+    if(selectedPageId === undefined) return [];
+
+    return getPagePath(selectedPageId);
+  }, [selectedPageId, getPagePath]);
 
   if (selectedPage === null) return null;
 
@@ -29,7 +44,7 @@ export function Title(props: TitleProps) {
                     hoverPagePathId === page.id ? 'underline' : undefined,
                 }}
                 onClick={() => {
-                  dispatch(selectPage(page.id));
+                  navigate(`/${page.id}`);
                   setHoverPagePathId(null);
                 }}
                 onMouseEnter={() => setHoverPagePathId(page.id)}
