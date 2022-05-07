@@ -2,19 +2,21 @@ import {
   EyeInvisibleOutlined,
   EyeTwoTone,
   LockOutlined,
-  MailOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { Button, Input } from 'antd';
 import React from 'react';
 import { useAuth } from '../stores/auth';
-import { Credentials } from '../types';
+import { SignInProps } from '../types';
 import { Link } from 'react-router-dom';
 
 export function SignIn() {
   const { signIn } = useAuth();
 
-  const [credentials, setCredentials] = React.useState<Credentials>({
-    email: '',
+  const [error, setError] = React.useState<Error | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [values, setValues] = React.useState<SignInProps>({
+    username: '',
     password: '',
   });
 
@@ -22,15 +24,26 @@ export function SignIn() {
     const key = e.target.name;
     const value = e.target.value;
 
-    setCredentials({
-      ...credentials,
+    setValues({
+      ...values,
       [key]: value,
     });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signIn(credentials);
+
+    setLoading(true);
+
+    const either = await signIn(values);
+    either.fold(
+      (e) => setError(e),
+      () => {
+        setError(null);
+      }
+    );
+
+    setLoading(false);
   };
 
   return (
@@ -41,20 +54,19 @@ export function SignIn() {
       >
         <h1 className="text-2xl font-bold text-center mb-6">Iniciar sesión</h1>
         <Input
-          value={credentials.email}
-          name="email"
-          prefix={<MailOutlined className="mr-1" />}
+          value={values.username}
+          name="username"
+          prefix={<UserOutlined className="mr-1" />}
           className="mb-4 w-full"
-          placeholder="Correo electrónico"
-          type="email"
+          placeholder="Nombre de usuario"
           onChange={onChange}
           required
         />
         <Input.Password
-          value={credentials.password}
+          value={values.password}
           name="password"
           prefix={<LockOutlined className="mr-1" />}
-          className="mb-6 w-full"
+          className="mb-3 w-full"
           placeholder="Contraseña"
           iconRender={(visible) =>
             visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
@@ -62,7 +74,18 @@ export function SignIn() {
           onChange={onChange}
           required
         />
-        <Button className="mb-2" htmlType="submit" type="primary" block>
+        {error ? (
+          <p className="mb-1 mt-1 text-center text-red-500">
+            {error.message}
+          </p>
+        ) : null}
+        <Button
+          loading={loading}
+          className="mb-2 mt-3"
+          htmlType="submit"
+          type="primary"
+          block
+        >
           Iniciar sesión
         </Button>
         <p className="mb-6 text-center">
