@@ -1,7 +1,7 @@
 import { FileOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
 import { useState } from 'react';
-import { usePages } from '~/features/editor/stores/pages';
+import { usePages, selectPage } from '~/features/editor/stores/pages';
 import { Page } from '~/features/editor/types';
 import { useEventEmitter } from '~/lib/eventemitter';
 import { PageNodeActions } from './PageNodeActions';
@@ -14,7 +14,7 @@ export interface PageNodeProps {
 
 export function PageNode({ page, level = 1 }: PageNodeProps) {
   const { emit } = useEventEmitter();
-  const { selectPage, selectedPage } = usePages();
+  const { selectedPage, dispatch } = usePages();
   const [actionsVisible, setActionsVisible] = useState(false);
 
   const selected = selectedPage !== null && selectedPage.id === page.id;
@@ -45,7 +45,7 @@ export function PageNode({ page, level = 1 }: PageNodeProps) {
           });
         }}
         onClick={() => {
-          selectPage(page.id);
+          dispatch(selectPage(page.id));
         }}
       >
         <PageNodeExpand page={page} />

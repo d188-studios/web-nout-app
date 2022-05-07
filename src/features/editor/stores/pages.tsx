@@ -11,6 +11,7 @@ import { PageTree } from '../utils/PageTree';
 
 export interface PagesState {
   pages: Page[];
+  selectedPageId: string | null;
 }
 
 export type PagesAction =
@@ -24,7 +25,8 @@ export type PagesAction =
     }
   | { type: 'EXPAND_PAGE'; payload: string }
   | { type: 'COLLAPSE_PAGE'; payload: string }
-  | { type: 'TOGGLE_EXPAND_PAGE'; payload: string };
+  | { type: 'TOGGLE_EXPAND_PAGE'; payload: string }
+  | { type: 'SELECT_PAGE'; payload: string | null };
 
 export const insertPage = (page: PageInsertProps): PagesAction => ({
   type: 'INSERT_PAGE',
@@ -66,18 +68,33 @@ export const toggleExpandPage = (id: string): PagesAction => ({
   payload: id,
 });
 
+export const selectPage = (id: string | null): PagesAction => ({
+  type: 'SELECT_PAGE',
+  payload: id,
+});
+
 function reducer(state: PagesState, action: PagesAction): PagesState {
   const pageTree = new PageTree(JSON.parse(JSON.stringify(state.pages)));
 
   switch (action.type) {
     case 'INSERT_PAGE':
       const insertedPage = pageTree.insertPage(action.payload);
-      if (insertedPage) return { ...state, pages: pageTree.pages };
+      if (insertedPage)
+        return {
+          ...state,
+          selectedPageId: insertedPage.id,
+          pages: pageTree.pages,
+        };
       break;
 
     case 'CREATE_PAGE':
       const createdPage = pageTree.createPage(action.payload);
-      if (createdPage) return { ...state, pages: pageTree.pages };
+      if (createdPage)
+        return {
+          ...state,
+          selectedPageId: createdPage.id,
+          pages: pageTree.pages,
+        };
       break;
 
     case 'UPDATE_PAGE':
@@ -112,6 +129,9 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
       const toggledPage = pageTree.toggleExpandPage(action.payload);
       if (toggledPage) return { ...state, pages: pageTree.pages };
       break;
+
+    case 'SELECT_PAGE':
+      return { ...state, selectedPageId: action.payload };
   }
 
   return state;
@@ -119,8 +139,6 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
 
 export type PagesProviderValue = [
   PagesState & {
-    findPage: (id: string) => Page | null;
-    selectPage: (id: string | null) => void;
     selectedPage: Page | null;
     selectedPagePath: Page[];
   },
@@ -130,8 +148,7 @@ export type PagesProviderValue = [
 export const PagesContext = React.createContext<PagesProviderValue>([
   {
     pages: [],
-    findPage: () => null,
-    selectPage: () => {},
+    selectedPageId: null,
     selectedPage: null,
     selectedPagePath: [],
   },
@@ -139,15 +156,19 @@ export const PagesContext = React.createContext<PagesProviderValue>([
 ]);
 
 export function PagesProvider({ children }: { children: React.ReactNode }) {
-  const [selectedPageId, selectPage] = React.useState<string | null>(null);
-  const [state, dispatch] = React.useReducer(reducer, { pages: [] });
+  const [state, dispatch] = React.useReducer(reducer, {
+    pages: [],
+    selectedPageId: null,
+  });
+
+  const { pages, selectedPageId } = state;
 
   const findPage = useCallback(
     (id: string) => {
-      const pageTree = new PageTree(state.pages);
+      const pageTree = new PageTree(pages);
       return pageTree.findPage(id);
     },
-    [state.pages]
+    [pages]
   );
 
   const selectedPage = useMemo(() => {
@@ -166,8 +187,6 @@ export function PagesProvider({ children }: { children: React.ReactNode }) {
       value={[
         {
           ...state,
-          findPage,
-          selectPage,
           selectedPage,
           selectedPagePath,
         },

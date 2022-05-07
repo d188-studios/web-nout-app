@@ -57,7 +57,7 @@ export function AddPageDialog() {
           onClick={(e) => e.stopPropagation()}
           className="bg-white rounded p-4 w-80 flex flex-col"
         >
-          <p className="mb-2">Escribe el nuevo título de la página:</p>
+          <p className="mb-2">Escribe el título de la página:</p>
           <Input
             onKeyDown={(e) => {
               if (e.key === 'Enter') onSave();

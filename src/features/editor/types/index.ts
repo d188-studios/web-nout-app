@@ -25,18 +25,6 @@ export type PageRenameProps = {
   id: string;
 };
 
-export interface PagePath {
-  title: string;
-  id: string;
-}
-
-export type EditablePage = {
-  id?: string;
-  title?: string;
-  expanded?: boolean;
-  parent?: string;
-};
-
 export type Position = {
   x: number;
   y: number;

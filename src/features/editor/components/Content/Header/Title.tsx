@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import React from 'react';
-import { renamePage, usePages } from '~/features/editor/stores/pages';
+import { renamePage, usePages, selectPage } from '~/features/editor/stores/pages';
 
 export interface TitleProps {}
 
 export function Title(props: TitleProps) {
-  const { selectPage, selectedPage, selectedPagePath, dispatch } = usePages();
+  const { selectedPage, selectedPagePath, dispatch } = usePages();
   const [hoverPagePathId, setHoverPagePathId] = React.useState<string | null>(
     null
   );
@@ -27,7 +27,7 @@ export function Title(props: TitleProps) {
                     hoverPagePathId === page.id ? 'underline' : undefined,
                 }}
                 onClick={() => {
-                  selectPage(page.id);
+                  dispatch(selectPage(page.id));
                   setHoverPagePathId(null);
                 }}
                 onMouseEnter={() => setHoverPagePathId(page.id)}
