@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { useEffect } from 'react';
 import { useEventEmitter } from '~/lib/eventemitter';
+import { usePages } from '../../stores/pages';
 import { Header } from './Header';
 import { PageNodeContextMenu, PageTree } from './PageTree';
 import UserContextMenu from './UserContextMenu';
@@ -9,6 +10,14 @@ export function Sidebar() {
   const {
     addListener
   } = useEventEmitter();
+
+  const {
+    fetchPages,
+  } = usePages();
+
+  useEffect(() => {
+    fetchPages();
+  }, [fetchPages]);
 
   const [visible, setVisible] = React.useState(true);
 

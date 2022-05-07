@@ -13,6 +13,7 @@ test('PageTree', () => {
     id: expect.any(String),
     title: '',
     expanded: false,
+    parent: null,
   });
 
   const childPage = pageTree.createPage({
@@ -74,6 +75,7 @@ test('PageTree multiple roots rename', () => {
     id: rootPage.id,
     title: 'Root',
     expanded: false,
+    parent: null,
   });
 
   pageTree.renamePage(rootPage2.id, 'Root2');
@@ -83,6 +85,7 @@ test('PageTree multiple roots rename', () => {
     id: rootPage2.id,
     title: 'Root2',
     expanded: false,
+    parent: null,
   });
 
   pageTree.insertPage({

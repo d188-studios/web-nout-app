@@ -1,10 +1,12 @@
 import clsx from 'clsx';
 import React from 'react';
-import { renamePage, usePages, selectPage } from '~/features/editor/stores/pages';
+import { usePages, selectPage } from '~/features/editor/stores/pages';
+import { useEventEmitter } from '~/lib/eventemitter';
 
 export interface TitleProps {}
 
 export function Title(props: TitleProps) {
+  const { emit } = useEventEmitter();
   const { selectedPage, selectedPagePath, dispatch } = usePages();
   const [hoverPagePathId, setHoverPagePathId] = React.useState<string | null>(
     null
@@ -40,26 +42,21 @@ export function Title(props: TitleProps) {
           );
         })}
       </div>
-      <input
+      <span
+        onClick={() => {
+          emit('openRenamePageDialog', selectedPage);
+        }}
         className={clsx(
-          'border-none focus:border-none p-0 flex-1 outline-none bg-transparent',
-          selectedPage.title !== '' ? 'font-bold' : 'font-normal italic'
+          'cursor-pointer',
+          selectedPage.title !== ''
+            ? 'font-bold'
+            : 'font-normal italic text-gray-400'
         )}
-        style={{
-          minWidth: 0,
-        }}
-        placeholder="Ingrese un título..."
-        type="text"
-        value={selectedPage.title}
-        onChange={(e) => {
-          dispatch(
-            renamePage({
-              id: selectedPage.id,
-              title: e.target.value,
-            })
-          );
-        }}
-      />
+      >
+        {selectedPage.title === ''
+          ? 'Haz click para editar el título'
+          : selectedPage.title}
+      </span>
     </>
   );
 }

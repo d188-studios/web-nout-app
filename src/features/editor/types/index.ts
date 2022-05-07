@@ -2,7 +2,7 @@ export type Page = {
   id: string;
   title: string;
   expanded?: boolean;
-  parent?: string;
+  parent: string | null;
   children: Page[];
 };
 

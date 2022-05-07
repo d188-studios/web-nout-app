@@ -28,17 +28,19 @@ export function Main(props: EditorProps) {
     if (!selectedPageId || !editor) return;
 
     // @ts-ignore
-    editor.configuration.onChange = async (api: API) => {
-      const { blocks } = await api.saver.save();
+    if (editor.configuration !== undefined)
+      // @ts-ignore
+      editor.configuration.onChange = async (api: API) => {
+        const { blocks } = await api.saver.save();
 
-      // TODO: Save blocks to server.
+        // TODO: Save blocks to server.
 
-      setBlocks((prevBlocks) => {
-        if (JSON.stringify(prevBlocks) === JSON.stringify(blocks))
-          return prevBlocks;
-        return blocks;
-      });
-    };
+        setBlocks((prevBlocks) => {
+          if (JSON.stringify(prevBlocks) === JSON.stringify(blocks))
+            return prevBlocks;
+          return blocks;
+        });
+      };
 
     // TODO: Fetch blocks from server.
 

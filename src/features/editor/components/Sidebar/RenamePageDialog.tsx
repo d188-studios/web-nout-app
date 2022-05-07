@@ -1,13 +1,15 @@
 import { Button, Input } from 'antd';
 import React, { useEffect } from 'react';
 import { useEventEmitter } from '~/lib/eventemitter';
-import { usePages, renamePage } from '../../stores/pages';
+import { usePages } from '../../stores/pages';
 import { PageRenameProps } from '../../types';
 
 export function RenamePageDialog() {
   const { addListener } = useEventEmitter();
-  const { dispatch } = usePages();
+  const { renamePage } = usePages();
   const [visible, setVisible] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
 
   const newPageRef = React.useRef<PageRenameProps>({
     title: '',
@@ -19,11 +21,23 @@ export function RenamePageDialog() {
     setVisible(false);
   };
 
-  const onSave = () => {
-    // TODO: Save page to server and then dispatch action to update store.
-    dispatch(renamePage(newPage));
+  const onSave = async () => {
+    setLoading(true);
+    setError(null);
 
-    onClose();
+    const either = await renamePage(newPage);
+
+    either.fold(
+      (e) => {
+        setError(e);
+      },
+      () => {
+        setError(null);
+        onClose();
+      }
+    );
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -51,6 +65,7 @@ export function RenamePageDialog() {
         >
           <p className="mb-2">Escribe el nuevo título de la página:</p>
           <Input
+            disabled={loading}
             onKeyDown={(e) => {
               if (e.key === 'Enter') onSave();
             }}
@@ -59,14 +74,25 @@ export function RenamePageDialog() {
             onChange={(e) => {
               newPage.title = e.target.value;
             }}
-            className="w-full mb-4"
+            className="w-full mb-2"
             placeholder="Título de la página"
           />
-          <div className="flex">
-            <Button danger className="flex-1 mr-1" onClick={onClose}>
+          {error ? <p className="mb-0 text-red-400">{error.message}</p> : null}
+          <div className="flex mt-2">
+            <Button
+              disabled={loading}
+              danger
+              className="flex-1 mr-1"
+              onClick={onClose}
+            >
               Cancelar
             </Button>
-            <Button className="flex-1 ml-1" type="primary" onClick={onSave}>
+            <Button
+              loading={loading}
+              className="flex-1 ml-1"
+              type="primary"
+              onClick={onSave}
+            >
               Guardar
             </Button>
           </div>

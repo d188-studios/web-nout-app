@@ -36,7 +36,7 @@ export class PageTree {
   }
 
   insertPage(page: PageInsertProps): Page | null {
-    if (page.parent === undefined) {
+    if (!page.parent) {
       const l = this.pages.push({
         ...page,
         children: [],
@@ -66,6 +66,7 @@ export class PageTree {
       ...page,
       id: uuidv4(),
       title: page.title !== undefined ? page.title : '',
+      parent: page.parent !== undefined ? page.parent : null,
     });
   }
 

@@ -1,13 +1,17 @@
 import { Button } from 'antd';
 import React, { useEffect } from 'react';
 import { useEventEmitter } from '~/lib/eventemitter';
-import { usePages, deletePage } from '../../stores/pages';
+import { useNotifications } from '~/lib/notifications';
+import { usePages } from '../../stores/pages';
 import { PageRenameProps } from '../../types';
 
 export function DeletePageDialog() {
   const { addListener } = useEventEmitter();
-  const { dispatch } = usePages();
+  const notifications = useNotifications();
+  const { deletePage } = usePages();
   const [visible, setVisible] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
+  const [loading, setLoading] = React.useState(false);
 
   const currPageRef = React.useRef<PageRenameProps>({
     title: '',
@@ -19,11 +23,28 @@ export function DeletePageDialog() {
     setVisible(false);
   };
 
-  const onDelete = () => {
-    // TODO: Delete page from server and then dispatch action to update store.
-    dispatch(deletePage(currPage.id));
+  const onDelete = async () => {
+    setLoading(true);
+    setError(null);
 
-    onClose();
+    notifications.notify({
+      name: 'page:delete',
+      message: 'Eliminando página.',
+    });
+
+    const either = await deletePage(currPage.id);
+
+    either.fold(
+      (e) => {
+        setError(e);
+      },
+      () => {
+        setError(null);
+        onClose();
+      }
+    );
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -49,12 +70,17 @@ export function DeletePageDialog() {
           onClick={(e) => e.stopPropagation()}
           className="bg-white rounded p-4 w-80 flex flex-col"
         >
-          <p className="mb-4">
+          <p className="mb-2">
             ¿Estás seguro de que quieres eliminar la página{' '}
             <strong>{currPage.title}</strong>?
           </p>
-          <div className="flex">
-            <Button className="flex-1 mr-1" onClick={onClose}>
+          {error ? <p className="mb-2 text-red-400">{error.message}</p> : null}
+          <div className="flex mt-2">
+            <Button
+              disabled={loading}
+              className="flex-1 mr-1"
+              onClick={onClose}
+            >
               Cancelar
             </Button>
             <Button
@@ -62,6 +88,7 @@ export function DeletePageDialog() {
               className="flex-1 ml-1"
               type="primary"
               onClick={onDelete}
+              loading={loading}
             >
               Eliminar
             </Button>
