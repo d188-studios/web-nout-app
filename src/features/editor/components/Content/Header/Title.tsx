@@ -1,75 +1,39 @@
 import clsx from 'clsx';
 import React from 'react';
-import { useEffect } from 'react';
-import { EditablePage, Page, PagePath } from '~/features/editor/types';
-import { useEventEmitter } from '~/lib/eventemitter';
+import { renamePage, usePages } from '~/features/editor/stores/pages';
 
 export interface TitleProps {}
 
 export function Title(props: TitleProps) {
-  const [page, setPage] = React.useState<Page | null>(null);
-  const [pagePath, setPagePath] = React.useState<PagePath[]>([]);
-  const { emit, addListener } = useEventEmitter();
+  const { selectPage, selectedPage, selectedPagePath, dispatch } = usePages();
   const [hoverPagePathId, setHoverPagePathId] = React.useState<string | null>(
     null
   );
 
-  useEffect(() => {
-    const removeOpenPageListener = addListener<Page>('openPage', setPage);
-    const removeOpenPagePathListener = addListener<PagePath[] | null>(
-      'openPagePath',
-      (pagePath) => {
-        setPagePath(pagePath ?? []);
-        setHoverPagePathId(null);
-      }
-    );
-
-    const removeUpdatePageListener = addListener<Page>(
-      'updateOpenPage',
-      (updatedPage) => {
-        setPage(updatedPage);
-      }
-    );
-
-    const removeDeletePageListener = addListener('deleteOpenPage', () => {
-      setPage(null);
-    });
-
-    return () => {
-      removeOpenPageListener();
-      removeOpenPagePathListener();
-      removeUpdatePageListener();
-      removeDeletePageListener();
-    };
-  }, [addListener]);
-
-  if (page === null) return null;
+  if (selectedPage === null) return null;
 
   return (
     <>
-      <div className="mr-1 cursor-pointer">
-        {pagePath.map((pagePath) => {
+      <div className="mr-1 select-none">
+        {selectedPagePath.map((page, i) => {
+          if (i === selectedPagePath.length - 1) return null;
+
           return (
-            <span key={pagePath.id}>
+            <span key={page.id}>
               <span
                 style={{
+                  cursor: 'pointer',
                   textDecoration:
-                    hoverPagePathId === pagePath.id ? 'underline' : undefined,
+                    hoverPagePathId === page.id ? 'underline' : undefined,
                 }}
                 onClick={() => {
-                  emit('openPage', {
-                    id: pagePath.id,
-                    title: pagePath.title,
-                  });
-                }}
-                onMouseEnter={() => {
-                  setHoverPagePathId(pagePath.id);
-                }}
-                onMouseLeave={() => {
+                  selectPage(page.id);
                   setHoverPagePathId(null);
                 }}
+                onMouseEnter={() => setHoverPagePathId(page.id)}
+                onMouseLeave={() => setHoverPagePathId(null)}
               >
-                {pagePath.title}
+                {page.title}
               </span>
               <span> / </span>
             </span>
@@ -79,24 +43,21 @@ export function Title(props: TitleProps) {
       <input
         className={clsx(
           'border-none focus:border-none p-0 flex-1 outline-none bg-transparent',
-          page.title !== '' ? 'font-bold' : 'font-normal italic'
+          selectedPage.title !== '' ? 'font-bold' : 'font-normal italic'
         )}
         style={{
           minWidth: 0,
         }}
         placeholder="Ingrese un título..."
         type="text"
-        value={page.title}
+        value={selectedPage.title}
         onChange={(e) => {
-          emit<{
-            page: Page;
-            editedPage: EditablePage;
-          }>('updatePage', {
-            page,
-            editedPage: {
+          dispatch(
+            renamePage({
+              id: selectedPage.id,
               title: e.target.value,
-            },
-          });
+            })
+          );
         }}
       />
     </>

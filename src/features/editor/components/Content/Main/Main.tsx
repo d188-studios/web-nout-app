@@ -24,40 +24,40 @@ export function Main(props: EditorProps) {
   }, []);
 
   useEffect(() => {
-    return addListener<Page>('openPage', (page) => {
-      setPage(page);
+    // return addListener<Page>('openPage', (page) => {
+    //   setPage(page);
 
-      if (!editorRef.current) return;
-      const editor = editorRef.current;
+    //   if (!editorRef.current) return;
+    //   const editor = editorRef.current;
 
-      // @ts-ignore
-      editor.configuration.onChange = async (api: API) => {
-        // const { blocks } = await api.saver.save();
+    //   // @ts-ignore
+    //   editor.configuration.onChange = async (api: API) => {
+    //     // const { blocks } = await api.saver.save();
 
-        // const found = blocks.find((block) => block.id === BLOCK_PAGE_TITLE_ID);
-        // if (!found) return;
+    //     // const found = blocks.find((block) => block.id === BLOCK_PAGE_TITLE_ID);
+    //     // if (!found) return;
 
-        // emit('updatePage', {
-        //   page,
-        //   editedPage: {
-        //     title: found.data.text,
-        //   },
-        // });
-      };
+    //     // emit('updatePage', {
+    //     //   page,
+    //     //   editedPage: {
+    //     //     title: found.data.text,
+    //     //   },
+    //     // });
+    //   };
 
-      editor.blocks.render({
-        blocks: [
-          {
-            id: BLOCK_PAGE_TITLE_ID,
-            type: 'header',
-            data: {
-              text: page.title,
-              level: 1,
-            },
-          },
-        ],
-      });
-    });
+    //   editor.blocks.render({
+    //     blocks: [
+    //       {
+    //         id: BLOCK_PAGE_TITLE_ID,
+    //         type: 'header',
+    //         data: {
+    //           text: page.title,
+    //           level: 1,
+    //         },
+    //       },
+    //     ],
+    //   });
+    // });
   }, [addListener, emit]);
 
   // useEffect(() => {

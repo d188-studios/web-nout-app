@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Page,
   PageCreateProps,
@@ -8,7 +8,6 @@ import {
 } from '../types';
 
 import { PageTree } from '../utils/PageTree';
-import { useEventEmitter } from '~/lib/eventemitter';
 
 export interface PagesState {
   pages: Page[];
@@ -121,18 +120,26 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
 export type PagesProviderValue = [
   PagesState & {
     findPage: (id: string) => Page | null;
+    selectPage: (id: string | null) => void;
+    selectedPage: Page | null;
+    selectedPagePath: Page[];
   },
   React.Dispatch<PagesAction>
 ];
 
 export const PagesContext = React.createContext<PagesProviderValue>([
-  { pages: [], findPage: (id: string) => null },
+  {
+    pages: [],
+    findPage: () => null,
+    selectPage: () => {},
+    selectedPage: null,
+    selectedPagePath: [],
+  },
   () => {},
 ]);
 
 export function PagesProvider({ children }: { children: React.ReactNode }) {
-  const { addListener, emit } = useEventEmitter();
-
+  const [selectedPageId, selectPage] = React.useState<string | null>(null);
   const [state, dispatch] = React.useReducer(reducer, { pages: [] });
 
   const findPage = useCallback(
@@ -143,12 +150,26 @@ export function PagesProvider({ children }: { children: React.ReactNode }) {
     [state.pages]
   );
 
+  const selectedPage = useMemo(() => {
+    if (!selectedPageId) return null;
+    return findPage(selectedPageId);
+  }, [selectedPageId, findPage]);
+
+  const selectedPagePath = useMemo(() => {
+    if (!selectedPage) return [];
+    const pageTree = new PageTree(state.pages);
+    return pageTree.getPagePath(selectedPage.id);
+  }, [selectedPage, state.pages]);
+
   return (
     <PagesContext.Provider
       value={[
         {
           ...state,
           findPage,
+          selectPage,
+          selectedPage,
+          selectedPagePath,
         },
         dispatch,
       ]}

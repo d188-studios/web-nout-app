@@ -126,4 +126,29 @@ export class PageTree {
 
     return null;
   }
+
+  private _createPagePath(id: string, pages: Page[], path: Page[]): boolean {
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+
+      let found = false;
+
+      if (page.children.length > 0)
+        found = this._createPagePath(id, page.children, path);
+
+      if (found || page.id === id) {
+        path.push(page);
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  getPagePath(id: string): Page[] {
+    const path: Page[] = [];
+    this._createPagePath(id, this.pages, path);
+    return path.reverse();
+  }
 }
