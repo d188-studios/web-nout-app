@@ -1,157 +1,66 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { useEventEmitter } from '~/lib/eventemitter';
-import { Page } from '~/features/editor/types';
-import EditorJS, { API } from '@editorjs/editorjs';
+import EditorJS, { API, OutputBlockData } from '@editorjs/editorjs';
 import { EDITOR_JS_TOOLS } from './editorTools';
+import { usePages } from '~/features/editor/stores/pages';
+import { useUpdateEffect } from 'react-use';
 
 export interface EditorProps {}
 
-const BLOCK_PAGE_TITLE_ID = 'pageTitle';
-
 export function Main(props: EditorProps) {
-  const { addListener, emit } = useEventEmitter();
+  const { selectedPageId } = usePages();
   const editorRef = useRef<EditorJS | null>(null);
-  const [page, setPage] = React.useState<Page | null>(null);
-  const pageTitleRef = useRef<string | null>(null);
+  const editor = editorRef.current;
+  const holderRef = useRef<HTMLDivElement | null>(null);
+  const [blocks, setBlocks] = React.useState<OutputBlockData[]>([]);
 
   useLayoutEffect(() => {
     if (editorRef.current) return;
 
-    editorRef.current = new EditorJS({
-      holder: 'editorjs',
-      tools: EDITOR_JS_TOOLS,
-    });
+    editorRef.current = holderRef.current
+      ? new EditorJS({
+          holder: holderRef.current,
+          tools: EDITOR_JS_TOOLS,
+        })
+      : null;
   }, []);
 
   useEffect(() => {
-    // return addListener<Page>('openPage', (page) => {
-    //   setPage(page);
+    if (!selectedPageId || !editor) return;
 
-    //   if (!editorRef.current) return;
-    //   const editor = editorRef.current;
+    // @ts-ignore
+    editor.configuration.onChange = async (api: API) => {
+      const { blocks } = await api.saver.save();
 
-    //   // @ts-ignore
-    //   editor.configuration.onChange = async (api: API) => {
-    //     // const { blocks } = await api.saver.save();
+      // TODO: Save blocks to server.
 
-    //     // const found = blocks.find((block) => block.id === BLOCK_PAGE_TITLE_ID);
-    //     // if (!found) return;
-
-    //     // emit('updatePage', {
-    //     //   page,
-    //     //   editedPage: {
-    //     //     title: found.data.text,
-    //     //   },
-    //     // });
-    //   };
-
-    //   editor.blocks.render({
-    //     blocks: [
-    //       {
-    //         id: BLOCK_PAGE_TITLE_ID,
-    //         type: 'header',
-    //         data: {
-    //           text: page.title,
-    //           level: 1,
-    //         },
-    //       },
-    //     ],
-    //   });
-    // });
-  }, [addListener, emit]);
-
-  // useEffect(() => {
-  //   return addListener<Page>('openPage', (page) => {
-  //     instanceCountRef.current += 1;
-  //     const instanceId = instanceCountRef.current;
-
-  //     // if (ejsInstanceRef.current && !loadingRef.current) {
-  //     //   ejsInstanceRef.current.destroy();
-  //     //   ejsInstanceRef.current = null;
-  //     // }
-
-  //     pageTitleRef.current = page.title;
-  // const newInstance = new EditorJS({
-  //   holder: 'editorjs',
-  //   tools: EDITOR_JS_TOOLS,
-  //   onReady: () => {
-  //     if(instanceId !== instanceCountRef.current)
-  //       newInstance.destroy();
-  //   },
-  //   onChange: async (api) => {
-  //     const { blocks } = await api.saver.save();
-
-  //         const found = blocks.find(
-  //           (block) => block.id === BLOCK_PAGE_TITLE_ID
-  //         );
-  //         if (found) {
-  //           if (found.data.text !== pageTitleRef.current) {
-  //             pageTitleRef.current = found.data.text;
-  //             emit('updatePage', {
-  //               page,
-  //               editedPage: {
-  //                 title: found.data.text,
-  //               },
-  //             });
-  //           }
-  //         }
-  //       },
-  //       data: {
-  //         blocks: [
-  //           {
-  //             id: BLOCK_PAGE_TITLE_ID,
-  //             type: 'header',
-  //             data: {
-  //               text: page.title,
-  //               level: 1,
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     });
-
-  //     ejsInstanceRef.current = newInstance;
-  //   });
-  // }, [addListener, emit]);
-
-  useEffect(() => {
-    const removeUpdatePageListener = addListener<Page>(
-      'updateOpenPage',
-      (updatedPage) => {
-        setPage(updatedPage);
-        // if (!editorRef.current) return;
-
-        // if (pageTitleRef.current === updatedPage.title) return;
-        // console.log(pageTitleRef.current, updatedPage.title);
-        // pageTitleRef.current = updatedPage.title;
-
-        // editorRef.current.blocks.update(BLOCK_PAGE_TITLE_ID, {
-        //   text: updatedPage.title,
-        //   level: 1,
-        // });
-      }
-    );
-
-    const removeDeletePageListener = addListener('deleteOpenPage', () => {
-      if (!editorRef.current) return;
-      setPage(null);
-      editorRef.current.blocks.clear();
-    });
-
-    return () => {
-      removeUpdatePageListener();
-      removeDeletePageListener();
+      setBlocks((prevBlocks) => {
+        if (JSON.stringify(prevBlocks) === JSON.stringify(blocks))
+          return prevBlocks;
+        return blocks;
+      });
     };
-  }, [addListener]);
+
+    // TODO: Fetch blocks from server.
+
+    editor.clear();
+    setBlocks((prevBlocks) => {
+      if (prevBlocks.length > 0) return [];
+      return prevBlocks;
+    });
+  }, [editor, selectedPageId]);
+
+  useUpdateEffect(() => {
+    console.log(blocks);
+  }, [blocks]);
 
   return (
     <div className="flex-1 relative">
       <div
         style={{
-          visibility: page ? 'visible' : 'hidden',
+          visibility: selectedPageId ? 'visible' : 'hidden',
         }}
+        ref={holderRef}
         className="absolute inset-0 overflow-auto p-20"
-        id="editorjs"
       ></div>
     </div>
   );

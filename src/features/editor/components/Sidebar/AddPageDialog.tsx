@@ -19,6 +19,7 @@ export function AddPageDialog() {
   };
 
   const onSave = () => {
+    // TODO: Save page to server and then dispatch action to update store.
     dispatch(createPage(newPage));
 
     onClose();

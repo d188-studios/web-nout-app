@@ -103,8 +103,24 @@ function reducer(state: PagesState, action: PagesAction): PagesState {
       break;
 
     case 'DELETE_PAGE':
+      let selectedPageDeleted = false;
+
+      if (state.selectedPageId !== null) {
+        selectedPageDeleted = state.selectedPageId === action.payload;
+        selectedPageDeleted =
+          selectedPageDeleted ||
+          pageTree.findPageInParent(action.payload, state.selectedPageId) !==
+            null;
+      }
+
       const deletedPage = pageTree.deletePage(action.payload);
-      if (deletedPage) return { ...state, pages: pageTree.pages };
+      if (deletedPage) {
+        return {
+          ...state,
+          selectedPageId: selectedPageDeleted ? null : state.selectedPageId,
+          pages: pageTree.pages,
+        };
+      }
       break;
 
     case 'RENAME_PAGE':
@@ -160,7 +176,6 @@ export function PagesProvider({ children }: { children: React.ReactNode }) {
     pages: [],
     selectedPageId: null,
   });
-
   const { pages, selectedPageId } = state;
 
   const findPage = useCallback(

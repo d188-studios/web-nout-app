@@ -20,6 +20,7 @@ export function DeletePageDialog() {
   };
 
   const onDelete = () => {
+    // TODO: Delete page from server and then dispatch action to update store.
     dispatch(deletePage(currPage.id));
 
     onClose();
