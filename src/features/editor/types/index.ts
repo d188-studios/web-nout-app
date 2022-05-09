@@ -1,3 +1,5 @@
+import { OutputBlockData } from '@editorjs/editorjs';
+
 export type Page = {
   id: string;
   title: string;
@@ -29,3 +31,9 @@ export type Position = {
   x: number;
   y: number;
 };
+
+export type Content = {
+  id: string;
+  pageId: string;
+  content: OutputBlockData[];
+}

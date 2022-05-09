@@ -1,19 +1,26 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import EditorJS, { API, OutputBlockData } from '@editorjs/editorjs';
 import { EDITOR_JS_TOOLS } from './editorTools';
-import { useUpdateEffect } from 'react-use';
 import { useParams } from 'react-router-dom';
 import { usePages } from '~/features/editor/stores/pages';
-import { Button, Empty, Result, Spin } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { useEventEmitter } from '~/lib/eventemitter';
+import { axios } from '~/lib/axios';
+import { Content } from '~/features/editor/types';
+import { Status } from './Status';
+import { Either } from '~/utils/Either';
+
+// TODO: Refactor this component.
 
 export interface EditorProps {}
 
 export function Main(props: EditorProps) {
   const { selectedPageId } = useParams();
-  const { findPage, loading } = usePages();
-  const { emit } = useEventEmitter();
+  const { findPage, loading: loadingPages } = usePages();
 
   const selectedPage = useMemo(() => {
     if (!selectedPageId) return null;
@@ -21,14 +28,88 @@ export function Main(props: EditorProps) {
     return findPage(selectedPageId);
   }, [findPage, selectedPageId]);
 
-  const noPageSelected = !loading && selectedPageId === undefined;
-  const noPageFound = !loading && !noPageSelected && selectedPage === null;
+  const [fetchError, setFetchError] = React.useState<Error | null>(null);
+  // TODO: Handle save error.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [saveError, setSaveError] = React.useState<Error | null>(null);
+  const [loadingContent, setLoadingContent] = React.useState(true);
+  const [ready, setReady] = React.useState(false);
+
+  const loading = loadingContent || loadingPages;
+  const editorVisible = !loading && !fetchError && ready && selectedPage;
+
+  const noPageSelected = selectedPageId === undefined;
+  const noPageFound = selectedPage === null;
 
   const editorRef = useRef<EditorJS | null>(null);
   const editor = editorRef.current;
   const holderRef = useRef<HTMLDivElement | null>(null);
-  const [ready, setReady] = React.useState(false);
-  const [blocks, setBlocks] = React.useState<OutputBlockData[]>([]);
+
+  const saveBlocks = useCallback(
+    async (pageId: string, blocks: OutputBlockData[]) => {
+      try {
+        const res = await axios.put<Content>(`/content/${pageId}`, {
+          content: blocks,
+        });
+
+        return Either.right<Error, Content['content']>(res.data.content);
+      } catch (e) {
+        return Either.left<Error, Content['content']>(e as Error);
+      }
+    },
+    []
+  );
+
+  const fetchBlocks = useCallback(async (pageId: string) => {
+    try {
+      const res = await axios.get<Content>(`/content/${pageId}`);
+
+      return Either.right<Error, Content['content']>(res.data.content);
+    } catch (e) {
+      return Either.left<Error, Content['content']>(e as Error);
+    }
+  }, []);
+
+  const renderSelectedPageBlocks = useCallback(async () => {
+    if (!editor || !ready) return;
+
+    setLoadingContent(true);
+
+    if (selectedPageId) {
+      const either = await fetchBlocks(selectedPageId);
+
+      either.fold(
+        (e) => {
+          setFetchError(e);
+        },
+        (blocks) => {
+          setFetchError(null);
+          editor.render({
+            blocks,
+          });
+        }
+      );
+
+      // @ts-ignore
+      editor.configuration.onChange = async (api: API) => {
+        const { blocks } = await api.saver.save();
+
+        // Don't wait for the save to finish.
+        saveBlocks(selectedPageId, blocks).then((either) =>
+          either.fold(
+            (e) => {
+              setSaveError(e);
+            },
+            () => {
+              setSaveError(null);
+            }
+          )
+        );
+      };
+    }
+
+    setLoadingContent(false);
+  }, [editor, fetchBlocks, ready, saveBlocks, selectedPageId]);
 
   useLayoutEffect(() => {
     if (editorRef.current) return;
@@ -46,86 +127,27 @@ export function Main(props: EditorProps) {
   }, []);
 
   useEffect(() => {
-    // if (selectedPageId === undefined || !editor) return;
-    // // @ts-ignore
-    // if (editor.configuration !== undefined)
-    //   // @ts-ignore
-    //   editor.configuration.onChange = async (api: API) => {
-    //     const { blocks } = await api.saver.save();
-    //     // TODO: Save blocks to server.
-    //     setBlocks((prevBlocks) => {
-    //       if (JSON.stringify(prevBlocks) === JSON.stringify(blocks))
-    //         return prevBlocks;
-    //       return blocks;
-    //     });
-    //   };
-    // // TODO: Fetch blocks from server.
-    // editor.clear();
-    // setBlocks((prevBlocks) => {
-    //   if (prevBlocks.length > 0) return [];
-    //   return prevBlocks;
-    // });
-  }, [editor, selectedPageId]);
-
-  // useUpdateEffect(() => {
-  //   console.log(blocks);
-  // }, [blocks]);
+    renderSelectedPageBlocks();
+  }, [renderSelectedPageBlocks]);
 
   return (
     <div className="flex-1 relative">
       <div
         style={{
-          visibility: ready && selectedPage ? 'visible' : 'hidden',
+          // !!Editor cannot be unmounted if it is not visible.
+          visibility: editorVisible ? 'visible' : 'hidden',
         }}
         ref={holderRef}
         className="absolute inset-0 overflow-auto p-20"
       />
 
-      {loading ? (
-        <div className="absolute inset-0 flex items-center justify-center overflow-auto">
-          <Spin size="large" />
-        </div>
-      ) : null}
-
-      {noPageSelected ? (
-        <div className="absolute inset-0 flex items-center justify-center overflow-auto">
-          <Empty
-            description="Crea o selecciona una página para editar."
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-          >
-            <Button
-              onClick={() => {
-                emit('openAddPageDialog');
-              }}
-              icon={<PlusOutlined />}
-              type="primary"
-            >
-              Nueva página
-            </Button>
-          </Empty>
-        </div>
-      ) : null}
-
-      {noPageFound ? (
-        <div className="absolute inset-0 flex items-center justify-center overflow-auto">
-          <Result
-            status="404"
-            title="404"
-            subTitle="No se encontró la página."
-            extra={
-              <Button
-                onClick={() => {
-                  emit('openAddPageDialog');
-                }}
-                icon={<PlusOutlined />}
-                type="primary"
-              >
-                Nueva página
-              </Button>
-            }
-          />
-        </div>
-      ) : null}
+      <Status
+        loading={loading}
+        fetchError={fetchError}
+        noPageSelected={noPageSelected}
+        noPageFound={noPageFound}
+        onRefresh={renderSelectedPageBlocks}
+      />
     </div>
   );
 }
