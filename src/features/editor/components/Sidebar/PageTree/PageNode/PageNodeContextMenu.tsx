@@ -1,7 +1,7 @@
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { CopyOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
-import { PageRenameProps, Position } from '~/features/editor/types';
+import { PageCopyProps, PageRenameProps, Position } from '~/features/editor/types';
 import { useEventEmitter } from '~/lib/eventemitter';
 
 export function PageNodeContextMenu() {
@@ -53,7 +53,7 @@ export function PageNodeContextMenu() {
           onClick={(e) => {
             e.stopPropagation();
 
-            emit('openRenamePageDialog', page);
+            emit<PageRenameProps>('openRenamePageDialog', page);
 
             setPage(null);
           }}
@@ -62,11 +62,24 @@ export function PageNodeContextMenu() {
           <span>Renombrar</span>
         </div>
         <div
+          className={itemClassName}
+          onClick={(e) => {
+            e.stopPropagation();
+
+            emit<PageCopyProps>('openCopyPageDialog', page);
+
+            setPage(null);
+          }}
+        >
+          <CopyOutlined className="mr-3" />
+          <span>Hacer una copia</span>
+        </div>
+        <div
           className={clsx(itemClassName, 'hover:bg-red-50')}
           onClick={(e) => {
             e.stopPropagation();
 
-            emit('openDeletePageDialog', page);
+            emit<PageRenameProps>('openDeletePageDialog', page);
 
             setPage(null);
           }}

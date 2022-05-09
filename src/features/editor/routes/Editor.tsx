@@ -4,6 +4,7 @@ import { EditorProviders } from '../providers';
 import { AddPageDialog } from '../components/Sidebar/AddPageDialog';
 import { RenamePageDialog } from '../components/Sidebar/RenamePageDialog';
 import { DeletePageDialog } from '../components/Sidebar/DeletePageDialog';
+import { CopyPageDialog } from '../components/Sidebar/CopyPageDialog';
 
 export function Editor() {
   return (
@@ -14,6 +15,7 @@ export function Editor() {
         <RenamePageDialog />
         <DeletePageDialog />
         <AddPageDialog />
+        <CopyPageDialog />
       </div>
     </EditorProviders>
   );
