@@ -10,7 +10,9 @@ export function Header(props: HeaderProps) {
   const { user } = useAuth();
   const { emit } = useEventEmitter();
   const nameInitial =
-    user.username.length > 0 ? user.username[0].toUpperCase() : undefined;
+    user && user.username && user.username.length > 0
+      ? user.username[0].toUpperCase()
+      : undefined;
 
   return (
     <div

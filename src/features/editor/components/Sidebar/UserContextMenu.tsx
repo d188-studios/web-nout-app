@@ -15,7 +15,9 @@ export default function UserContextMenu() {
   const mobile = useIsMobile();
 
   const nameInitial =
-    user.username.length > 0 ? user.username[0].toUpperCase() : undefined;
+    user && user.username && user.username.length > 0
+      ? user.username[0].toUpperCase()
+      : undefined;
 
   const itemClassName =
     'rounded flex items-center h-8 px-3 cursor-pointer select-none hover:bg-slate-200 transition-all';
