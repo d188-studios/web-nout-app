@@ -1,26 +1,22 @@
 import { MailOutlined } from '@ant-design/icons';
-import { Button, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { axios } from '~/lib/axios';
+import toast from 'react-hot-toast';
 
 export function SendPasswordRecoveryEmail() {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
-  const [email, setEmail] = React.useState('');
   const [error, setError] = React.useState<Error | null>(null);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const onFinish = async (values: { email: string }) => {
     setLoading(true);
 
     try {
-      await axios.post(`/auth/reset-password`, { email });
+      await axios.post(`/auth/reset-password`, values);
+
+      toast.success('Te enviamos un correo para recuperar tu cuenta.');
       setError(null);
       navigate('/', {
         replace: true,
@@ -36,42 +32,56 @@ export function SendPasswordRecoveryEmail() {
 
   return (
     <div className="h-screen flex justify-center items-center">
-      <form
-        onSubmit={onSubmit}
-        className="max-w-xs rounded p-4 border-solid border border-gray-200"
+      <Form
+        onFinish={onFinish}
+        className="rounded p-4 border-solid border border-gray-200"
+        style={{
+          maxWidth: '350px',
+          width: '100%',
+        }}
       >
         <h1 className="text-2xl font-bold text-center mb-6">
-          Recuperar contraseña
+          Recuperar cuenta
         </h1>
-        <Input
-          disabled={loading}
-          value={email}
+
+        <Form.Item
+          hasFeedback
           name="email"
-          prefix={<MailOutlined className="mr-1" />}
-          className="mb-2 w-full"
-          placeholder="Correo electrónico"
-          type="email"
-          onChange={onChange}
-          required
-        />
-        {error ? (
-          <p className="mb-1 mt-1 text-center text-red-500">{error.message}</p>
-        ) : null}
-        <Button
-          loading={loading}
-          className="mt-2 mb-6"
-          htmlType="submit"
-          type="primary"
-          block
+          rules={[
+            {
+              type: 'email',
+              message: 'El correo electrónico no es válido.',
+            },
+            {
+              required: true,
+              message: 'El correo electrónico es requerido.',
+            },
+          ]}
         >
-          Enviar correo de recuperación
-        </Button>
+          <Input
+            disabled={loading}
+            prefix={<MailOutlined className="mr-1" />}
+            placeholder="Correo electrónico"
+            type="email"
+          />
+        </Form.Item>
+
+        <Form.Item className="mb-5">
+          <Button loading={loading} htmlType="submit" type="primary" block>
+            Enviar correo de recuperación
+          </Button>
+        </Form.Item>
+
+        {error ? (
+          <p className="text-center text-red-500">{error.message}</p>
+        ) : null}
+
         <p className="mb-0 text-center">
           <Link to="/auth/sign-in" replace>
             Regresar a inicio de sesión
           </Link>
         </p>
-      </form>
+      </Form>
     </div>
   );
 }

@@ -3,43 +3,28 @@ import {
   EyeTwoTone,
   LockOutlined,
 } from '@ant-design/icons';
-import { Button, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { axios } from '~/lib/axios';
+import toast from 'react-hot-toast';
 
 export function PasswordRecovery() {
   const { token = '' } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
-  const [values, setValues] = React.useState({
-    password: '',
-    passwordConfirmation: '',
-  });
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const key = e.target.name;
-    const value = e.target.value;
-
-    setValues({
-      ...values,
-      [key]: value,
-    });
-  };
-
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (values.password !== values.passwordConfirmation) {
-      setError(new Error('Las contraseñas no coinciden.'));
-      return;
-    }
-
+  const onFinish = async (values: {
+    password: string;
+    passwordConfirmation: string;
+  }) => {
     setLoading(true);
 
     try {
       await axios.post(`/auth/reset-password/${token}`, values);
+
+      toast.success('El cambio de contraseña se ha realizado correctamente.');
       setError(null);
       navigate('/', {
         replace: true,
@@ -57,52 +42,83 @@ export function PasswordRecovery() {
 
   return (
     <div className="h-screen flex justify-center items-center">
-      <form
-        onSubmit={onSubmit}
-        className="max-w-xs rounded p-4 border-solid border border-gray-200"
+      <Form
+        onFinish={onFinish}
+        className="rounded p-4 border-solid border border-gray-200"
+        style={{
+          maxWidth: '350px',
+          width: '100%',
+        }}
       >
         <h1 className="text-2xl font-bold text-center mb-6">
           Cambiar contraseña
         </h1>
-        <Input.Password
-          disabled={loading}
-          value={values.password}
+
+        <Form.Item
+          hasFeedback
           name="password"
-          prefix={<LockOutlined className="mr-1" />}
-          className="mb-4 w-full"
-          placeholder="Contraseña"
-          iconRender={(visible) =>
-            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-          }
-          onChange={onChange}
-          required
-        />
-        <Input.Password
-          disabled={loading}
-          value={values.passwordConfirmation}
-          name="passwordConfirmation"
-          prefix={<LockOutlined className="mr-1" />}
-          className="mb-2 w-full"
-          placeholder="Confirmar contraseña"
-          iconRender={(visible) =>
-            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-          }
-          onChange={onChange}
-          required
-        />
-        {error ? (
-          <p className="mb-1 mt-1 text-center text-red-500">{error.message}</p>
-        ) : null}
-        <Button
-          className="mt-2"
-          loading={loading}
-          htmlType="submit"
-          type="primary"
-          block
+          rules={[
+            {
+              required: true,
+              message: 'La contraseña es requerida.',
+            },
+            {
+              min: 6,
+              message: 'La contraseña debe tener al menos 6 caracteres.',
+            },
+          ]}
         >
-          Cambiar contraseña
-        </Button>
-      </form>
+          <Input.Password
+            disabled={loading}
+            prefix={<LockOutlined className="mr-1" />}
+            placeholder="Contraseña"
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+          />
+        </Form.Item>
+
+        <Form.Item
+          hasFeedback
+          name="passwordConfirmation"
+          dependencies={['password']}
+          rules={[
+            {
+              required: true,
+              message: 'La confirmación de contraseña es requerida.',
+            },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error('Las contraseñas no coinciden.')
+                );
+              },
+            }),
+          ]}
+        >
+          <Input.Password
+            disabled={loading}
+            prefix={<LockOutlined className="mr-1" />}
+            placeholder="Confirmar contraseña"
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+          />
+        </Form.Item>
+
+        <Form.Item className="mb-5">
+          <Button loading={loading} htmlType="submit" type="primary" block>
+            Cambiar contraseña
+          </Button>
+        </Form.Item>
+
+        {error ? (
+          <p className="text-center text-red-500">{error.message}</p>
+        ) : null}
+      </Form>
     </div>
   );
 }
