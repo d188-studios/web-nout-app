@@ -1,7 +1,7 @@
 import { Spin } from 'antd';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { AuthRoutes, useAuth } from '~/features/auth';
+import { AuthRoutes, useAuth, VerifyAccount } from '~/features/auth';
 import { Editor } from '~/features/editor';
 
 export function AppRoutes() {
@@ -32,6 +32,7 @@ export function AppRoutes() {
           <Route path="*" element={<Navigate to="/auth/sign-in" />} />
         </>
       )}
+      <Route path="/verify-account/:token" element={<VerifyAccount />} />
     </Routes>
   );
 }

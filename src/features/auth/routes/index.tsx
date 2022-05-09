@@ -15,4 +15,4 @@ export function AuthRoutes() {
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
-};
+}
