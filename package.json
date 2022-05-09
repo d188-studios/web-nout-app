@@ -48,7 +48,8 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "craco eject"
+    "eject": "craco eject",
+    "deploy": "yarn build && firebase deploy"
   },
   "eslintConfig": {
     "extends": [
