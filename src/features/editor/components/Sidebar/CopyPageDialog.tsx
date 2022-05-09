@@ -43,6 +43,7 @@ export function CopyPageDialog() {
     return addListener<PageCopyProps>(
       'openCopyPageDialog',
       (page) => {
+        newPage.id = page.id;
         newPage.title = `${page.title} (Copia)`;
         newPage.parent = page.parent
 
