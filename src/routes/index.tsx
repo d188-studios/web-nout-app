@@ -1,7 +1,12 @@
 import { Spin } from 'antd';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { AuthRoutes, useAuth, VerifyAccount } from '~/features/auth';
+import {
+  AuthRoutes,
+  PasswordRecovery,
+  useAuth,
+  VerifyAccount,
+} from '~/features/auth';
 import { Editor } from '~/features/editor';
 
 export function AppRoutes() {
@@ -33,6 +38,7 @@ export function AppRoutes() {
         </>
       )}
       <Route path="/verify-account/:token" element={<VerifyAccount />} />
+      <Route path="reset-password/:token" element={<PasswordRecovery />} />
     </Routes>
   );
 }

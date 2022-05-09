@@ -4,3 +4,4 @@ export * from './providers';
 export * from './types';
 
 export { VerifyAccount } from './routes/VerifyAccount';
+export { PasswordRecovery } from './routes/PasswordRecovery';

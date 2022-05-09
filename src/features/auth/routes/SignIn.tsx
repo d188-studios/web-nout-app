@@ -89,7 +89,7 @@ export function SignIn() {
           Iniciar sesión
         </Button>
         <p className="mb-6 text-center">
-          <Link className="text-xs" to="/auth/password-recovery" replace>
+          <Link className="text-xs" to="/auth/send-reset-password" replace>
             ¿Olvidaste tu contraseña?
           </Link>
         </p>

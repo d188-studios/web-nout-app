@@ -1,19 +1,58 @@
 import {
-  MailOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  LockOutlined,
 } from '@ant-design/icons';
 import { Button, Input } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { axios } from '~/lib/axios';
 
 export function PasswordRecovery() {
-  const [email, setEmail] = React.useState('');
+  const { token = '' } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
+  const [values, setValues] = React.useState({
+    password: '',
+    passwordConfirmation: '',
+  });
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+    const key = e.target.name;
+    const value = e.target.value;
+
+    setValues({
+      ...values,
+      [key]: value,
+    });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (values.password !== values.passwordConfirmation) {
+      setError(new Error('Las contraseñas no coinciden.'));
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await axios.post(`/auth/reset-password/${token}`, values);
+      setError(null);
+      navigate('/', {
+        replace: true,
+      });
+    } catch (e) {
+      setError(
+        new Error(
+          'No se pudo cambiar la contraseña. Por favor, intente nuevamente.'
+        )
+      );
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -23,26 +62,46 @@ export function PasswordRecovery() {
         className="max-w-xs rounded p-4 border-solid border border-gray-200"
       >
         <h1 className="text-2xl font-bold text-center mb-6">
-          Recuperar contraseña
+          Cambiar contraseña
         </h1>
-        <Input
-          value={email}
-          name="email"
-          prefix={<MailOutlined className="mr-1" />}
+        <Input.Password
+          disabled={loading}
+          value={values.password}
+          name="password"
+          prefix={<LockOutlined className="mr-1" />}
           className="mb-4 w-full"
-          placeholder="Correo electrónico"
-          type="email"
+          placeholder="Contraseña"
+          iconRender={(visible) =>
+            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          }
           onChange={onChange}
           required
         />
-        <Button className="mb-6" htmlType="submit" type="primary" block>
-          Enviar correo de recuperación
+        <Input.Password
+          disabled={loading}
+          value={values.passwordConfirmation}
+          name="passwordConfirmation"
+          prefix={<LockOutlined className="mr-1" />}
+          className="mb-2 w-full"
+          placeholder="Confirmar contraseña"
+          iconRender={(visible) =>
+            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          }
+          onChange={onChange}
+          required
+        />
+        {error ? (
+          <p className="mb-1 mt-1 text-center text-red-500">{error.message}</p>
+        ) : null}
+        <Button
+          className="mt-2"
+          loading={loading}
+          htmlType="submit"
+          type="primary"
+          block
+        >
+          Cambiar contraseña
         </Button>
-        <p className="mb-0 text-center">
-          <Link to="/auth/sign-in" replace>
-            Regresar a inicio de sesión
-          </Link>
-        </p>
       </form>
     </div>
   );
