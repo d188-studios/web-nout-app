@@ -38,7 +38,7 @@ export function AppRoutes() {
         </>
       )}
       <Route path="/verify-account/:token" element={<VerifyAccount />} />
-      <Route path="reset-password/:token" element={<PasswordRecovery />} />
+      <Route path="/reset-password/:token" element={<PasswordRecovery />} />
     </Routes>
   );
 }
