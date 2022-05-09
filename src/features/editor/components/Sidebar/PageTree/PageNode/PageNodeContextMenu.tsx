@@ -1,12 +1,14 @@
 import { CopyOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
+import { useIsMobile } from '~/features/editor/hooks/useIsMobile';
 import { PageCopyProps, PageRenameProps, Position } from '~/features/editor/types';
 import { useEventEmitter } from '~/lib/eventemitter';
 
 export function PageNodeContextMenu() {
   const { addListener, emit } = useEventEmitter();
 
+  const mobile = useIsMobile();
   const [page, setPage] = useState<PageRenameProps | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -43,7 +45,12 @@ export function PageNodeContextMenu() {
     return (
       <div
         className="absolute bg-white p-1 shadow-md rounded w-40 z-[9999]"
-        style={{
+        style={mobile ? {
+          top: position.y,
+          left: 0,
+          right: 0,
+          width: '100%',
+        } : {
           top: position.y,
           left: position.x,
         }}

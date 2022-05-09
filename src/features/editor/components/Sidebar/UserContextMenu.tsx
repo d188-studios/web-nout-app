@@ -4,12 +4,15 @@ import clsx from 'clsx';
 import React, { useEffect } from 'react';
 import { useAuth } from '~/features/auth';
 import { useEventEmitter } from '~/lib/eventemitter';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { Position } from '../../types';
 
 export default function UserContextMenu() {
   const { user, signOut } = useAuth();
   const { addListener } = useEventEmitter();
   const [position, setPosition] = React.useState<Position | null>(null);
+
+  const mobile = useIsMobile();
 
   const nameInitial =
     user.username.length > 0 ? user.username[0].toUpperCase() : undefined;
@@ -44,6 +47,15 @@ export default function UserContextMenu() {
           e.stopPropagation();
         }}
         className="absolute bg-white shadow-md rounded w-80 top-14 left-4 z-[9999]"
+        style={
+          mobile
+            ? {
+                left: 0,
+                right: 0,
+                width: '100%',
+              }
+            : undefined
+        }
       >
         <div
           className="

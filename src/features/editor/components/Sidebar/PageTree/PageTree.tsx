@@ -8,7 +8,7 @@ export function PageTree() {
 
   return (
     <div className="flex-1 relative">
-      <div className="absolute inset-0 w-80 overflow-auto">
+      <div className="absolute inset-0 w-full overflow-auto">
         {loading ? (
           <Skeleton.Input
             block

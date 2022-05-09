@@ -1,5 +1,6 @@
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
+import { useIsMobile } from '~/features/editor/hooks/useIsMobile';
 import { Page } from '~/features/editor/types';
 import { useEventEmitter } from '~/lib/eventemitter';
 
@@ -11,16 +12,23 @@ export interface PageNodeActionsProps {
 export function PageNodeActions({ visible, page }: PageNodeActionsProps) {
   const { emit } = useEventEmitter();
 
-  if (visible)
+  const mobile = useIsMobile();
+
+  if (visible || mobile)
     return (
       <div className="flex">
         <Button
           onClick={(e) => {
             e.stopPropagation();
 
+            const { y } = e.currentTarget.getBoundingClientRect();
+
             emit('openPageContextMenu', {
               page,
-              position: { x: e.pageX, y: e.pageY },
+              position: {
+                x: e.pageX,
+                y: mobile ? y + e.currentTarget.clientHeight : e.pageY,
+              },
             });
           }}
           className="mr-1 bg-transparent border-0 shadow-none"

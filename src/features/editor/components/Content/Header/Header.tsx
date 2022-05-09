@@ -3,16 +3,14 @@ import { DoubleRightOutlined, MenuOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { Title } from './Title';
 import { useEventEmitter } from '~/lib/eventemitter';
+import { isMobile } from '~/features/editor/utils/isMobile';
 
 export interface HeaderProps {}
 
 export function Header(props: HeaderProps) {
-  const {
-    emit,
-    addListener
-  } = useEventEmitter();
+  const { emit, addListener } = useEventEmitter();
 
-  const [visibleMenu, setVisibleMenu] = useState(false);
+  const [visibleMenu, setVisibleMenu] = useState(isMobile());
   const [hoverMenu, setHoverMenu] = useState(false);
 
   useEffect(() => {
