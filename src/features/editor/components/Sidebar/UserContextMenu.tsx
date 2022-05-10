@@ -78,7 +78,7 @@ export default function UserContextMenu() {
           <div>
             <p className="text-xs mb-0">
               <span>{user.username}</span>
-              {!user.authorized ? (
+              {user.authorized ? (
                 <CheckOutlined
                   className="ml-1"
                   style={{
