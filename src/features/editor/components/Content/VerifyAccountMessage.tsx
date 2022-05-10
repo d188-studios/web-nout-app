@@ -13,9 +13,7 @@ export function VerifyAccountMessage() {
     setLoading(true);
 
     try {
-      await axios.post(`/auth/send-verify-account`, {
-        email: user.email,
-      });
+      await axios.post('/auth/send-verify-account-email');
 
       toast.success('Te enviamos un correo para recuperar tu cuenta.', {
         position: 'top-center',
