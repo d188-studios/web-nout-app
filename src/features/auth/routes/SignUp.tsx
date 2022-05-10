@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../stores/auth';
 import { SignUpProps } from '../types';
 import toast from 'react-hot-toast';
+import { ErrorMessages } from '../components/ErrorMessages';
 
 export function SignUp() {
   const [form] = Form.useForm();
@@ -80,6 +81,16 @@ export function SignUp() {
               required: true,
               message: 'El nombre de usuario es requerido.',
             },
+            {
+              max: 32,
+              message:
+                'El nombre de usuario no puede tener más de 32 caracteres.',
+            },
+            {
+              pattern: /^[a-zA-Z0-9_]+$/,
+              message:
+                'El nombre de usuario solo puede contener letras, números y guiones bajos.',
+            },
           ]}
         >
           <Input
@@ -147,11 +158,12 @@ export function SignUp() {
           </Button>
         </Form.Item>
 
-        {error ? (
+        <ErrorMessages error={error} />
+        {/* {error ? (
           <p className="text-center text-red-500">{error.message}</p>
-        ) : null}
+        ) : null} */}
 
-        <p className="text-center">
+        <p className="text-center mt-5">
           <span>¿Ya tienes una cuenta? </span>
           <Link to="/auth/sign-in" replace>
             Iniciar sesión

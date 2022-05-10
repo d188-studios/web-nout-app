@@ -1,3 +1,4 @@
+import { BaseErrorProps, ValidationErrorProps } from '~/utils/errors';
 export interface User {
   uuid: string;
   email: string;
@@ -15,3 +16,12 @@ export interface SignUpProps {
   password: string;
   passwordConfirmation: string;
 }
+
+export type SignUpResponseData =
+  | undefined
+  | {
+      errors: ValidationErrorProps[];
+    }
+  | {
+      error: BaseErrorProps;
+    };

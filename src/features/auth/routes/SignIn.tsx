@@ -52,6 +52,16 @@ export function SignIn() {
               required: true,
               message: 'El nombre de usuario es requerido.',
             },
+            {
+              max: 32,
+              message:
+                'El nombre de usuario no puede tener más de 32 caracteres.',
+            },
+            {
+              pattern: /^[a-zA-Z0-9_]+$/,
+              message:
+                'El nombre de usuario solo puede contener letras, números y guiones bajos.',
+            },
           ]}
         >
           <Input

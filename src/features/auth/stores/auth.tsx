@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react';
-import { SignInProps, SignUpProps, User } from '../types';
+import { SignInProps, SignUpProps, SignUpResponseData, User } from '../types';
 import { axios } from '~/lib/axios';
 import { Either } from '~/utils/Either';
 import { storage } from '~/utils/storage';
+import { BaseError, ValidationError } from '~/utils/errors';
+import { AxiosError } from 'axios';
 
 export interface AuthState {
   user: User;
@@ -90,9 +92,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = useCallback(async (props: SignUpProps) => {
     try {
-      await axios.post<undefined>('/auth/signup', props);
+      await axios.post<SignUpResponseData>('/auth/signup', props);
+
       return Either.right<Error, undefined>(undefined);
     } catch (e) {
+      const error = e as AxiosError<SignUpResponseData>;
+
+      if (error.response) {
+        const data = error.response.data;
+
+        if (data === undefined) {
+          // !! Should not happen.
+          return Either.left<Error, undefined>(
+            new Error('Contacte con el administrador.')
+          );
+        } else if ('error' in data) {
+          return Either.left<Error, undefined>(
+            new BaseError('Ha ocurrido un error al registrarse.', {
+              error: data.error,
+            })
+          );
+        } else if ('errors' in data) {
+          return Either.left<Error, undefined>(
+            new ValidationError('Ha ocurrido un error de validación.', {
+              errors: data.errors,
+            })
+          );
+        }
+      }
+
       return Either.left<Error, undefined>(
         new Error('Ha ocurrido un error al registrarse.')
       );
