@@ -1,3 +1,3 @@
-export function isMobile() {
-  return window.innerWidth <= 900;
+export function isMobile(width = 900) {
+  return window.innerWidth <= width;
 }

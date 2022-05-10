@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { isMobile } from '../utils/isMobile';
 
-export function useIsMobile() {
-  const [mobile, setMobile] = useState(isMobile());
+export function useIsMobile(width?: number) {
+  const [mobile, setMobile] = useState(isMobile(width));
 
   useEffect(() => {
     const onResize = () => {
-      setMobile(isMobile());
+      setMobile(isMobile(width));
     };
 
     window.addEventListener('resize', onResize);

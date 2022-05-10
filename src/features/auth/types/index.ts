@@ -3,6 +3,7 @@ export interface User {
   uuid: string;
   email: string;
   username: string;
+  authorized: boolean;
 }
 
 export interface SignInProps {

@@ -5,6 +5,7 @@ import { usePages } from '../../stores/pages';
 import { useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { APP_NAME } from '~/config';
+import { VerifyAccountMessage } from './VerifyAccountMessage';
 
 export function Content() {
   const { selectedPageId } = useParams();
@@ -24,6 +25,7 @@ export function Content() {
         </title>
       </Helmet>
       <Header />
+      <VerifyAccountMessage />
       <Main />
     </div>
   );

@@ -1,4 +1,4 @@
-import { LogoutOutlined } from '@ant-design/icons';
+import { CheckOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import clsx from 'clsx';
 import React, { useEffect } from 'react';
@@ -76,7 +76,17 @@ export default function UserContextMenu() {
             </Avatar>
           ) : null}
           <div>
-            <p className="text-xs mb-0">{user.username}</p>
+            <p className="text-xs mb-0">
+              <span>{user.username}</span>
+              {!user.authorized ? (
+                <CheckOutlined
+                  className="ml-1"
+                  style={{
+                    color: '#1890ff',
+                  }}
+                />
+              ) : null}
+            </p>
             <p className="text-xs mb-0 text-gray-500">{user.email}</p>
           </div>
         </div>

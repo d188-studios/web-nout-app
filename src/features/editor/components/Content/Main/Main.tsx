@@ -13,6 +13,7 @@ import { axios } from '~/lib/axios';
 import { Content } from '~/features/editor/types';
 import { Status } from './Status';
 import { Either } from '~/utils/Either';
+import { useIsMobile } from '~/features/editor/hooks/useIsMobile';
 
 // TODO: Refactor this component.
 
@@ -44,6 +45,8 @@ export function Main(props: EditorProps) {
   const editorRef = useRef<EditorJS | null>(null);
   const editor = editorRef.current;
   const holderRef = useRef<HTMLDivElement | null>(null);
+
+  const mobile = useIsMobile(650);
 
   const saveBlocks = useCallback(
     async (pageId: string, blocks: OutputBlockData[]) => {
@@ -133,12 +136,16 @@ export function Main(props: EditorProps) {
   return (
     <div className="flex-1 relative">
       <div
+        className="absolute inset-0 overflow-auto"
         style={{
           // !!Editor cannot be unmounted if it is not visible.
           visibility: editorVisible ? 'visible' : 'hidden',
+          paddingLeft: mobile ? '1.8rem' : '5rem',
+          paddingRight: mobile ? '1.8rem' : '5rem',
+          paddingTop: mobile ? 0 : '4rem',
+          paddingBottom: mobile ? 0 : '4rem',
         }}
         ref={holderRef}
-        className="absolute inset-0 overflow-auto p-20"
       />
 
       <Status

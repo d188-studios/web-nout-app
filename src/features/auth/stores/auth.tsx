@@ -24,6 +24,7 @@ export const AuthContext = React.createContext<AuthProviderValue>({
     uuid: '',
     email: '',
     username: '',
+    authorized: false,
   },
   loading: true,
   authenticated: false,
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     uuid: '',
     email: '',
     username: '',
+    authorized: false,
   });
 
   const [authenticated, setAuthenticated] = React.useState(false);
@@ -56,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       uuid: '',
       email: '',
       username: '',
+      authorized: false,
     });
 
     storage.clearToken();
