@@ -1,31 +1,17 @@
 import { Main } from './Main';
 import { Header } from './Header';
-import { useParams } from 'react-router-dom';
-import { usePages } from '../../stores/pages';
-import { useMemo } from 'react';
-import { Helmet } from 'react-helmet';
-import { APP_NAME } from '~/config';
 import { VerifyAccountMessage } from './VerifyAccountMessage';
+import { useAuth } from '~/features/auth';
+import { HelmetTitle } from './HelmetTitle';
 
 export function Content() {
-  const { selectedPageId } = useParams();
-  const { findPage } = usePages();
-
-  const selectedPage = useMemo(() => {
-    if (!selectedPageId) return null;
-
-    return findPage(selectedPageId);
-  }, [findPage, selectedPageId]);
+  const { user } = useAuth();
 
   return (
     <div className="flex-1 flex flex-col">
-      <Helmet>
-        <title>
-          {selectedPage ? `${selectedPage.title} - ${APP_NAME}` : APP_NAME}
-        </title>
-      </Helmet>
+      <HelmetTitle />
       <Header />
-      <VerifyAccountMessage />
+      <VerifyAccountMessage authorized={user.authorized} />
       <Main />
     </div>
   );

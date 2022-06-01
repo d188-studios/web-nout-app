@@ -1,12 +1,15 @@
 import { Alert, Button, Space } from 'antd';
 import React from 'react';
-import { useAuth } from '~/features/auth';
 import toast from 'react-hot-toast';
 import { axios } from '~/lib/axios';
 
-export function VerifyAccountMessage() {
-  const { user } = useAuth();
+export interface VerifyAccountMessageProps {
+  authorized: boolean;
+}
 
+export function VerifyAccountMessage({
+  authorized,
+}: VerifyAccountMessageProps) {
   const [loading, setLoading] = React.useState(false);
 
   const onClick = async () => {
@@ -30,7 +33,7 @@ export function VerifyAccountMessage() {
     setLoading(false);
   };
 
-  if (user.authorized) return null;
+  if (authorized) return null;
 
   return (
     <Alert
