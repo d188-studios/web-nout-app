@@ -79,7 +79,7 @@ export function PageNodeContextMenu() {
           }}
         >
           <CopyOutlined className="mr-3" />
-          <span>Hacer una copia</span>
+          <span>Copiar</span>
         </div>
         <div
           className={clsx(itemClassName, 'hover:bg-red-50')}

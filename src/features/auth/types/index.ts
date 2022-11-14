@@ -4,6 +4,8 @@ export interface User {
   email: string;
   username: string;
   authorized: boolean;
+  baneado: boolean;
+  survey: boolean;
 }
 
 export interface SignInProps {

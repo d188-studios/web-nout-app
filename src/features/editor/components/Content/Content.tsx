@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { VerifyAccountMessage } from './VerifyAccountMessage';
 import { useAuth } from '~/features/auth';
 import { HelmetTitle } from './HelmetTitle';
+import { AnswerUserSatisfactionSurveyMessage } from './AnswerUserSatisfactionSurveyMessage';
 
 export function Content() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export function Content() {
       <HelmetTitle />
       <Header />
       <VerifyAccountMessage authorized={user.authorized} />
+      <AnswerUserSatisfactionSurveyMessage user={user} />
       <Main />
     </div>
   );
