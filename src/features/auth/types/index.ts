@@ -12,6 +12,8 @@ export interface SignInProps {
 }
 
 export interface SignUpProps {
+  nombre: string;
+  apellido: string;
   username: string;
   email: string;
   password: string;
