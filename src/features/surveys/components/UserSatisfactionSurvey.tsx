@@ -1,6 +1,5 @@
 import { Form, Modal, Rate, Select, Typography } from 'antd';
 import { useState } from 'react';
-import { User } from '~/features/auth';
 import { axios } from '~/lib/axios';
 import interpolate from 'color-interpolate';
 
