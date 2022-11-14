@@ -85,6 +85,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         signOut();
 
+        const error = e as AxiosError;
+        if(error && error.response && error.response.status === 401) {
+          return Either.left<Error, User>(
+            new Error('Tu usuario a sido baneado por un administrador.')
+          );
+        }
+
         return Either.left<Error, User>(
           new Error('El nombre de usuario o la contraseña son incorrectos.')
         );
