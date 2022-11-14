@@ -25,6 +25,8 @@ export const AuthContext = React.createContext<AuthProviderValue>({
     email: '',
     username: '',
     authorized: false,
+    baneado: false,
+    survey: false
   },
   loading: true,
   authenticated: false,
@@ -48,6 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: '',
     username: '',
     authorized: false,
+    baneado: false,
+    survey: false
   });
 
   const [authenticated, setAuthenticated] = React.useState(false);
@@ -59,6 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email: '',
       username: '',
       authorized: false,
+      baneado: false,
+      survey: false
     });
 
     storage.clearToken();
