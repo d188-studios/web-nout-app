@@ -54,6 +54,36 @@ export function SignUp() {
 
         <Form.Item
           hasFeedback
+          name="nombre"
+          rules={[
+            {
+              required: true,
+              message: 'El nombre es requerido.',
+            },
+          ]}
+        >
+          <Input
+            placeholder="Nombre"
+          />
+        </Form.Item>
+
+        <Form.Item
+          hasFeedback
+          name="apellido"
+          rules={[
+            {
+              required: true,
+              message: 'El apellido es requerido.',
+            },
+          ]}
+        >
+          <Input
+            placeholder="Apellido"
+          />
+        </Form.Item>
+
+        <Form.Item
+          hasFeedback
           name="email"
           rules={[
             {
