@@ -5,3 +5,4 @@ export * from './routes/MovimientoDeUsuarios';
 export * from './routes/MovimientoDePaginas';
 export * from './routes/CalificacionesUsuariosSinVerificar';
 export * from './routes/PaginasUsuariosVerificados';
+export * from './routes/UsuariosBaneados';

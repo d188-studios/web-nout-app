@@ -22,7 +22,7 @@ export function Home() {
     {
       id: '3',
       title: 'Informacion sobre usuarios baneados',
-      path: '',
+      path: '/views/usuarios_baneados',
     },
   ];
 
