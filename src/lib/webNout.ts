@@ -13,8 +13,8 @@ function authRequestInterceptor(config: AxiosRequestConfig) {
   return config;
 }
 
-export const axios = Axios.create({
+export const webNout = Axios.create({
   baseURL: API_URL,
 });
 
-axios.interceptors.request.use(authRequestInterceptor);
+webNout.interceptors.request.use(authRequestInterceptor);

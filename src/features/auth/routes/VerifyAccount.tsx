@@ -1,7 +1,7 @@
 import { Button, Result, Spin } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 
 export function VerifyAccount() {
   const { token = '' } = useParams();
@@ -14,7 +14,7 @@ export function VerifyAccount() {
     const verifyAccount = async () => {
       try {
         setLoading(true);
-        await axios.post(`/auth/verify-account/${token}`);
+        await webNout.post(`/auth/verify-account/${token}`);
         setLoading(false);
       } catch (e) {
         setLoading(false);

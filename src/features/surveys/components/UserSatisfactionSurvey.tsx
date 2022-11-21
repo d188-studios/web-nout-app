@@ -1,6 +1,6 @@
 import { Form, Modal, Rate, Select, Typography } from 'antd';
 import { useState } from 'react';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import interpolate from 'color-interpolate';
 
 const interpolateColor = interpolate(['red', '#d1c936', 'green']);
@@ -30,7 +30,7 @@ export function UserSatisfactionSurvey({
     try {
       const body = await form.validateFields();
 
-      const res = await axios.post('/survey', body);
+      const res = await webNout.post('/survey', body);
       setData(res.data);
 
       onSuccess();
@@ -87,7 +87,7 @@ export function UserSatisfactionSurvey({
               justifyContent: 'center',
               alignItems: 'center',
               background: interpolateColor(data.promedio_calificacion / 5),
-              marginBottom: 20
+              marginBottom: 20,
             }}
           >
             <Typography.Text
@@ -96,7 +96,9 @@ export function UserSatisfactionSurvey({
               {data.promedio_calificacion.toFixed(1)}
             </Typography.Text>
           </div>
-          <Typography.Title>{data.resultado_calificacion}</Typography.Title>
+          <Typography.Title style={{ marginBottom: 0 }}>
+            {data.resultado_calificacion}
+          </Typography.Title>
         </div>
       ) : (
         <Form

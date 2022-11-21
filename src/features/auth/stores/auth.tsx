@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { SignInProps, SignUpProps, SignUpResponseData, User } from '../types';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import { Either } from '~/utils/Either';
 import { storage } from '~/utils/storage';
 import { BaseError, ValidationError } from '~/utils/errors';
@@ -26,7 +26,8 @@ export const AuthContext = React.createContext<AuthProviderValue>({
     username: '',
     authorized: false,
     baneado: false,
-    survey: false
+    survey: false,
+    administrador: false,
   },
   loading: true,
   authenticated: false,
@@ -44,28 +45,24 @@ export const AuthContext = React.createContext<AuthProviderValue>({
   },
 });
 
+const DEFAULT_USER: User = {
+  uuid: '',
+  email: '',
+  username: '',
+  authorized: false,
+  baneado: false,
+  survey: false,
+  administrador: false
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<User>({
-    uuid: '',
-    email: '',
-    username: '',
-    authorized: false,
-    baneado: false,
-    survey: false
-  });
+  const [user, setUser] = React.useState<User>(DEFAULT_USER);
 
   const [authenticated, setAuthenticated] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
   const signOut = useCallback(() => {
-    setUser({
-      uuid: '',
-      email: '',
-      username: '',
-      authorized: false,
-      baneado: false,
-      survey: false
-    });
+    setUser(DEFAULT_USER);
 
     storage.clearToken();
 
@@ -75,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = useCallback(
     async (props: SignInProps) => {
       try {
-        const res = await axios.post<{
+        const res = await webNout.post<{
           token: string;
           user: User;
         }>('/auth/signin', props);
@@ -108,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = useCallback(async (props: SignUpProps) => {
     try {
-      await axios.post<SignUpResponseData>('/auth/signup', props);
+      await webNout.post<SignUpResponseData>('/auth/signup', props);
 
       return Either.right<Error, undefined>(undefined);
     } catch (e) {
@@ -147,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
 
-      const res = await axios.get<User>('/auth/me');
+      const res = await webNout.get<User>('/auth/me');
 
       const user = res.data;
 

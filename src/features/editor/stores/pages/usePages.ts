@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import { Either } from '~/utils/Either';
 import { PagesContext } from './context';
 import {
@@ -50,7 +50,7 @@ export function usePages() {
   const fetchPages = useCallback(async () => {
     try {
       dispatch(_setLoading(true));
-      const res = await axios.get<Page[]>('/pages');
+      const res = await webNout.get<Page[]>('/pages');
 
       const pages = res.data;
 
@@ -73,7 +73,7 @@ export function usePages() {
         // Expand page even if request fails.
         dispatch(_expandPage(id));
 
-        const res = await axios.put<Page>(`/pages/${id}`, {
+        const res = await webNout.put<Page>(`/pages/${id}`, {
           expanded: true,
         });
 
@@ -93,7 +93,7 @@ export function usePages() {
         // Collapse page even if request fails.
         dispatch(_collapsePage(id));
 
-        const res = await axios.put<Page>(`/pages/${id}`, {
+        const res = await webNout.put<Page>(`/pages/${id}`, {
           expanded: false,
         });
 
@@ -123,7 +123,7 @@ export function usePages() {
   const createPage = useCallback(
     async (page: PageCreateProps) => {
       try {
-        const res = await axios.post<Page>('/pages', page);
+        const res = await webNout.post<Page>('/pages', page);
         const newPage = res.data;
 
         // !! Kind of a hacky way to update expanded pages in server.
@@ -153,7 +153,7 @@ export function usePages() {
   const copyPage = useCallback(
     async (page: PageCopyProps) => {
       try {
-        const res = await axios.post<Page>('/pages/copy', page);
+        const res = await webNout.post<Page>('/pages/copy', page);
         const newPage = res.data;
 
         // !! Kind of a hacky way to update expanded pages in server.
@@ -183,7 +183,7 @@ export function usePages() {
   const deletePage = useCallback(
     async (id: string) => {
       try {
-        await axios.delete<void>(`/pages/${id}`);
+        await webNout.delete<void>(`/pages/${id}`);
 
         const pageTree = new PageTree(
           JSON.parse(JSON.stringify(pagesRef.current))
@@ -212,7 +212,7 @@ export function usePages() {
   const renamePage = useCallback(
     async (page: PageRenameProps) => {
       try {
-        const res = await axios.put<Page>(`/pages/${page.id}`, {
+        const res = await webNout.put<Page>(`/pages/${page.id}`, {
           title: page.title,
         });
 

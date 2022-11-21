@@ -2,7 +2,7 @@ import { MailOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import toast from 'react-hot-toast';
 
 export function SendPasswordRecoveryEmail() {
@@ -14,7 +14,7 @@ export function SendPasswordRecoveryEmail() {
     setLoading(true);
 
     try {
-      await axios.post(`/auth/reset-password`, values);
+      await webNout.post(`/auth/reset-password`, values);
 
       toast.success('Te enviamos un correo para recuperar tu cuenta.');
       setError(null);

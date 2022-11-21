@@ -1,7 +1,7 @@
 import { Alert, Button, Space } from 'antd';
 import React from 'react';
 import toast from 'react-hot-toast';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 
 export interface VerifyAccountMessageProps {
   authorized: boolean;
@@ -16,7 +16,7 @@ export function VerifyAccountMessage({
     setLoading(true);
 
     try {
-      await axios.post('/auth/send-verify-account-email');
+      await webNout.post('/auth/send-verify-account-email');
 
       toast.success('Te enviamos un correo para recuperar tu cuenta.', {
         position: 'top-center',
