@@ -14,7 +14,11 @@ export function Header(props: HeaderProps) {
       : undefined;
 
   return (
-    <div className="w-full flex px-4 items-center h-16 bg-gray-100">
+    <>
+  
+    <div className="w-full flex px-4 items-center h-16 bg-gray-100 fixed" style={{
+      zIndex: 100
+    }}>
       <div
         className='flex px-4'
         onClick={(e) => {
@@ -33,5 +37,7 @@ export function Header(props: HeaderProps) {
         <p className="mb-0">{user.username}</p>
       </div>
     </div>
+    <div className='h-16' />
+    </>
   );
 }

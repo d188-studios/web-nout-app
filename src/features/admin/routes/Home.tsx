@@ -12,7 +12,7 @@ export function Home() {
     {
       id: '1',
       title: 'Conteo de paginas de los usuarios verificados',
-      path: '',
+      path: '/views/paginas_usuarios_verificados',
     },
     {
       id: '2',

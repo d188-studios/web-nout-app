@@ -102,7 +102,6 @@ export const Users: React.FC = () => {
   const [verificado, setVerificado] = useState<boolean | undefined>();
   const [contestada, setContestada] = useState<boolean | undefined>();
 
-
   const onChangeUsernames = useCallback((usernames: string[]) => {
     setUsernames(usernames);
     setTableParams((tableParams) => ({
@@ -169,7 +168,7 @@ export const Users: React.FC = () => {
         email: emails,
         baneado,
         contestada,
-        verificado
+        verificado,
       });
 
       setData(res.data.users);
@@ -186,7 +185,14 @@ export const Users: React.FC = () => {
     }
 
     setLoading(false);
-  }, [JSON.stringify(tableParams), usernames, emails, baneado, contestada, verificado]);
+  }, [
+    JSON.stringify(tableParams),
+    usernames,
+    emails,
+    baneado,
+    contestada,
+    verificado,
+  ]);
 
   useEffect(() => {
     getAll();
@@ -234,11 +240,14 @@ export const Users: React.FC = () => {
         <div className="flex-1">
           <BC title="Usuarios" />
         </div>
-        {hasSelected ? (
-          <Button loading={banning} onClick={banSelectedUsers} danger>
-            Toggle Baneo
-          </Button>
-        ) : null}
+        <Button
+          disabled={!hasSelected}
+          loading={banning}
+          onClick={banSelectedUsers}
+          danger
+        >
+          Toggle Baneo
+        </Button>
       </div>
       <div className="flex mb-6">
         <div className="flex flex-col flex-1 mr-4">

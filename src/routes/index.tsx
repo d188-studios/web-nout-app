@@ -1,7 +1,7 @@
 import { Spin } from 'antd';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { CalificacionesUsuariosSinVerificar, Home, Layout, MovimientoDePaginas, MovimientoDeUsuarios, Users } from '~/features/admin';
+import { CalificacionesUsuariosSinVerificar, Home, Layout, MovimientoDePaginas, MovimientoDeUsuarios, PaginasUsuariosVerificados, Users } from '~/features/admin';
 import {
   AuthRoutes,
   PasswordRecovery,
@@ -35,6 +35,7 @@ export function AppRoutes() {
               <Route path="/tables/movimientos_de_usuarios" element={<MovimientoDeUsuarios />} />
               <Route path="/tables/movimientos_de_paginas" element={<MovimientoDePaginas />} />
               <Route path="/views/calificaciones_usuarios_sin_verificar" element={<CalificacionesUsuariosSinVerificar />} />
+              <Route path="/views/paginas_usuarios_verificados" element={<PaginasUsuariosVerificados />} />
             </Route>
           ) : (
             <>
