@@ -14,22 +14,24 @@ export function Header(props: HeaderProps) {
       : undefined;
 
   return (
-    <div
-      className="w-full flex px-8 items-center h-16 bg-gray-100"
-      onClick={(e) => {
-        e.stopPropagation();
-        emit<Position>('openUserContextMenu', {
-          x: e.pageX,
-          y: e.pageY,
-        });
-      }}
-    >
-      {nameInitial ? (
-        <Avatar size="small" className="mr-2">
-          {nameInitial}
-        </Avatar>
-      ) : null}
-      <p className="mb-0">{user.username}</p>
+    <div className="w-full flex px-4 items-center h-16 bg-gray-100">
+      <div
+        className='flex px-4'
+        onClick={(e) => {
+          e.stopPropagation();
+          emit<Position>('openUserContextMenu', {
+            x: e.pageX,
+            y: e.pageY,
+          });
+        }}
+      >
+        {nameInitial ? (
+          <Avatar size="small" className="mr-2">
+            {nameInitial}
+          </Avatar>
+        ) : null}
+        <p className="mb-0">{user.username}</p>
+      </div>
     </div>
   );
 }

@@ -16,8 +16,8 @@ export function Home() {
     },
     {
       id: '2',
-      title: 'Calificaciones de encuestas de usuarios verificados',
-      path: '',
+      title: 'Calificaciones de encuestas de usuarios no verificados',
+      path: '/views/calificaciones_usuarios_sin_verificar',
     },
     {
       id: '3',
