@@ -26,7 +26,8 @@ export const AuthContext = React.createContext<AuthProviderValue>({
     username: '',
     authorized: false,
     baneado: false,
-    survey: false
+    survey: false,
+    administrador: false,
   },
   loading: true,
   authenticated: false,
@@ -44,28 +45,24 @@ export const AuthContext = React.createContext<AuthProviderValue>({
   },
 });
 
+const DEFAULT_USER: User = {
+  uuid: '',
+  email: '',
+  username: '',
+  authorized: false,
+  baneado: false,
+  survey: false,
+  administrador: false
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<User>({
-    uuid: '',
-    email: '',
-    username: '',
-    authorized: false,
-    baneado: false,
-    survey: false
-  });
+  const [user, setUser] = React.useState<User>(DEFAULT_USER);
 
   const [authenticated, setAuthenticated] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
   const signOut = useCallback(() => {
-    setUser({
-      uuid: '',
-      email: '',
-      username: '',
-      authorized: false,
-      baneado: false,
-      survey: false
-    });
+    setUser(DEFAULT_USER);
 
     storage.clearToken();
 

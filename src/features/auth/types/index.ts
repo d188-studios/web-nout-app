@@ -6,6 +6,7 @@ export interface User {
   authorized: boolean;
   baneado: boolean;
   survey: boolean;
+  administrador: boolean;
 }
 
 export interface SignInProps {

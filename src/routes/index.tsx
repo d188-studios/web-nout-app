@@ -1,6 +1,7 @@
 import { Spin } from 'antd';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Home, Layout, Users } from '~/features/admin';
 import {
   AuthRoutes,
   PasswordRecovery,
@@ -10,7 +11,7 @@ import {
 import { Editor } from '~/features/editor';
 
 export function AppRoutes() {
-  const { authenticated, me, loading } = useAuth();
+  const { authenticated, me, loading, user } = useAuth();
 
   useEffect(() => {
     me();
@@ -27,8 +28,17 @@ export function AppRoutes() {
     <Routes>
       {authenticated ? (
         <>
-          <Route index element={<Editor />} />
-          <Route path="/:selectedPageId" element={<Editor />} />
+          {user.administrador ? (
+            <Route element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="/tables/users" element={<Users />} />
+            </Route>
+          ) : (
+            <>
+              <Route index element={<Editor />} />
+              <Route path="/:selectedPageId" element={<Editor />} />
+            </>
+          )}
           <Route path="*" element={<Navigate to="/" />} />
         </>
       ) : (
