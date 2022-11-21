@@ -33,9 +33,14 @@ export function Home() {
       path: '/tables/users',
     },
     {
-      id: '1',
+      id: '2',
       title: 'Movimientos de usuarios',
       path: '/tables/movimientos_de_usuarios',
+    },
+    {
+      id: '3',
+      title: 'Movimientos de páginas',
+      path: '/tables/movimientos_de_paginas',
     },
   ];
 

@@ -29,7 +29,7 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: 'ID Usuario',
-    dataIndex: 'id_usuario',
+    dataIndex: 'user_id',
   },
   {
     title: 'Nombre de usuario',
@@ -37,51 +37,30 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: 'Movimiento',
-    dataIndex: 'movimiento',
+    dataIndex: 'movement',
     filters: [
       {
-        text: 'CREADO',
-        value: 'CREADO',
+        text: 'CREADA',
+        value: 'CREADA',
       },
       {
-        text: 'VERIFICADO',
-        value: 'VERIFICADO',
+        text: 'ELIMINADA',
+        value: 'ELIMINADA',
       },
       {
-        text: 'CONTESTO-ENCUESTA',
-        value: 'CONTESTO-ENCUESTA',
-      },
-      {
-        text: 'CAMBIO-CONTRASEÑA',
-        value: 'CAMBIO-CONTRASEÑA',
-      },
-      {
-        text: 'BANEADO',
-        value: 'BANEADO',
-      },
-      {
-        text: 'DESBANEADO',
-        value: 'DESBANEADO',
+        text: 'TITULO-EDITADO',
+        value: 'TITULO-EDITADO',
       },
     ],
     render: (_, row) => {
       let color = 'blue';
 
       switch (row.movimiento) {
-        case 'BANEADO':
+        case 'ELIMINADA':
           color = 'red';
           break;
-        case 'DESBANEADO':
+        case 'CREADA':
           color = 'green';
-          break;
-        case 'VERIFICADO':
-          color = 'orange';
-          break;
-        case 'CONTESTO-ENCUESTA':
-          color = 'purple';
-          break;
-        case 'CAMBIO-CONTRASEÑA':
-          color = 'yellow';
           break;
       }
 
@@ -90,7 +69,7 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: 'Fecha de movimiento',
-    dataIndex: 'fecha_de_movimiento',
+    dataIndex: 'movement_date',
     render: (_, row) => {
       return (
         <span>
@@ -103,7 +82,7 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
-export const MovimientoDeUsuarios: React.FC = () => {
+export const MovimientoDePaginas: React.FC = () => {
   const abortCtrl = useRef<AbortController | null>(null);
   const [data, setData] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -135,7 +114,7 @@ export const MovimientoDeUsuarios: React.FC = () => {
       abortCtrl.current = new AbortController();
 
       const res = await webNout.post(
-        '/admin/movimientos_usuario',
+        '/admin/movimientos_pagina',
         {
           page: tableParams.pagination?.current,
           limit: tableParams.pagination?.pageSize,
@@ -186,7 +165,7 @@ export const MovimientoDeUsuarios: React.FC = () => {
     <div className="p-8 pt-4">
       <div className="flex flex-row items-center mb-6 h-8">
         <div className="flex-1">
-          <BC title="Movimientos de usuarios" />
+          <BC title="Movimientos de páginas" />
         </div>
       </div>
       <div className="flex flex-row mb-6">
