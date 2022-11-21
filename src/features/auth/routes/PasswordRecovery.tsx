@@ -6,7 +6,7 @@ import {
 import { Button, Form, Input } from 'antd';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import toast from 'react-hot-toast';
 
 export function PasswordRecovery() {
@@ -22,7 +22,7 @@ export function PasswordRecovery() {
     setLoading(true);
 
     try {
-      await axios.post(`/auth/reset-password/${token}`, values);
+      await webNout.post(`/auth/reset-password/${token}`, values);
 
       toast.success('El cambio de contraseña se ha realizado correctamente.');
       setError(null);

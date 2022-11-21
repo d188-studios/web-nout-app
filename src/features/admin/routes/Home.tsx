@@ -35,7 +35,7 @@ export function Home() {
     {
       id: '1',
       title: 'Movimientos de usuarios',
-      path: '',
+      path: '/tables/movimientos_de_usuarios',
     },
   ];
 

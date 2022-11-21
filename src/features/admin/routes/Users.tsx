@@ -9,7 +9,7 @@ import { FilterValue, SorterResult } from 'antd/lib/table/interface';
 import { format } from 'date-fns';
 import es from 'date-fns/locale/es';
 import React, { useCallback, useEffect, useState } from 'react';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import { TableParams } from '~/types';
 import { BC } from '../components/BC';
 
@@ -77,11 +77,11 @@ export const Users: React.FC = () => {
     },
   });
 
-  const getUsers = useCallback(async () => {
+  const getAll = useCallback(async () => {
     setLoading(true);
 
     try {
-      const res = await axios.post('/admin/users', {
+      const res = await webNout.post('/admin/users', {
         page: tableParams.pagination?.current,
         limit: tableParams.pagination?.pageSize,
       });
@@ -103,8 +103,8 @@ export const Users: React.FC = () => {
   }, [JSON.stringify(tableParams)]);
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    getAll();
+  }, [getAll]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
@@ -132,8 +132,8 @@ export const Users: React.FC = () => {
     setBanning(true);
 
     try {
-      await axios.post('/admin/ban', rowSelection.selectedRowKeys);
-      getUsers();
+      await webNout.post('/admin/ban', rowSelection.selectedRowKeys);
+      getAll();
     } catch (e) {
       console.error(e);
     }

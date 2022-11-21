@@ -9,7 +9,7 @@ import EditorJS, { API, OutputBlockData } from '@editorjs/editorjs';
 import { EDITOR_JS_TOOLS } from './editorTools';
 import { useParams } from 'react-router-dom';
 import { usePages } from '~/features/editor/stores/pages';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import { Content } from '~/features/editor/types';
 import { Status } from './Status';
 import { Either } from '~/utils/Either';
@@ -51,7 +51,7 @@ export function Main(props: EditorProps) {
   const saveBlocks = useCallback(
     async (pageId: string, blocks: OutputBlockData[]) => {
       try {
-        const res = await axios.put<Content>(`/content/${pageId}`, {
+        const res = await webNout.put<Content>(`/content/${pageId}`, {
           content: blocks,
         });
 
@@ -65,7 +65,7 @@ export function Main(props: EditorProps) {
 
   const fetchBlocks = useCallback(async (pageId: string) => {
     try {
-      const res = await axios.get<Content>(`/content/${pageId}`);
+      const res = await webNout.get<Content>(`/content/${pageId}`);
 
       return Either.right<Error, Content['content']>(res.data.content);
     } catch (e) {

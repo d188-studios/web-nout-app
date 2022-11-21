@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { SignInProps, SignUpProps, SignUpResponseData, User } from '../types';
-import { axios } from '~/lib/axios';
+import { webNout } from '~/lib/webNout';
 import { Either } from '~/utils/Either';
 import { storage } from '~/utils/storage';
 import { BaseError, ValidationError } from '~/utils/errors';
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = useCallback(
     async (props: SignInProps) => {
       try {
-        const res = await axios.post<{
+        const res = await webNout.post<{
           token: string;
           user: User;
         }>('/auth/signin', props);
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = useCallback(async (props: SignUpProps) => {
     try {
-      await axios.post<SignUpResponseData>('/auth/signup', props);
+      await webNout.post<SignUpResponseData>('/auth/signup', props);
 
       return Either.right<Error, undefined>(undefined);
     } catch (e) {
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
 
-      const res = await axios.get<User>('/auth/me');
+      const res = await webNout.get<User>('/auth/me');
 
       const user = res.data;
 

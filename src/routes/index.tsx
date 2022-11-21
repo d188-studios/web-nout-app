@@ -2,6 +2,7 @@ import { Spin } from 'antd';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Home, Layout, Users } from '~/features/admin';
+import { MovimientoDeUsuarios } from '~/features/admin/routes/MovimientoDeUsuarios';
 import {
   AuthRoutes,
   PasswordRecovery,
@@ -32,6 +33,7 @@ export function AppRoutes() {
             <Route element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="/tables/users" element={<Users />} />
+              <Route path="/tables/movimientos_de_usuarios" element={<MovimientoDeUsuarios />} />
             </Route>
           ) : (
             <>
