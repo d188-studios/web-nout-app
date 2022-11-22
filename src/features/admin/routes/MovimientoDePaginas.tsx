@@ -29,7 +29,7 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: 'ID Usuario',
-    dataIndex: 'user_id',
+    dataIndex: 'id_usuario',
   },
   {
     title: 'Nombre de usuario',
@@ -37,7 +37,7 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: 'Movimiento',
-    dataIndex: 'movement',
+    dataIndex: 'movimiento',
     filters: [
       {
         text: 'CREADA',
